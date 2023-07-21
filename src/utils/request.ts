@@ -1,6 +1,6 @@
 import axios from 'axios'
-import { getToken } from './auth'
 import { success,error } from '@/utils/tips'
+import {getLocalstorage} from "@/utils/localStorage";
 
 // 配置请求的跟路径
 axios.defaults.baseURL = 'api'
@@ -13,7 +13,7 @@ axios.interceptors.request.use(function (config) {
   //设置超时时间
   config.timeout = 5000;
   // 往header头自动添加token
-  const token = getToken()
+  const token = getLocalstorage("Token")
   
   if(token){
       config.headers["Token"] = token

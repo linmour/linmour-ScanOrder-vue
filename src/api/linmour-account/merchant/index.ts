@@ -9,6 +9,10 @@ export function login(phone,password) {
 }
 
 
-export function logout() {
-    return request.post('/account/merchant/logout');
+export function logout(id) {
+    return request.post('/account/merchant/logout/'+id);
+}
+
+export function userInfo() {
+    return request.post('/account/merchant/userInfo');
 }

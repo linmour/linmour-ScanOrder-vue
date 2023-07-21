@@ -38,14 +38,11 @@
 
 <script setup>
 import { ref,reactive } from 'vue'
-import { login,logout } from '@/api/linmour-account/merchant'
-import { success } from '@/utils/tips'
+import { login } from '@/api/linmour-account/merchant'
 import { useRouter } from 'vue-router'
-import { setToken } from '@/utils/auth'
-import { useStore } from 'vuex'
+import {setLocalstorage} from "../utils/localStorage";
 
 
-const store = useStore()
 const router = useRouter()
 const form = reactive({
   phone:"",
@@ -81,9 +78,8 @@ const onSubmit = () => {
             
             if(res.code === 200){
                 //保存信息，全局通用
-                window.localStorage.setItem("userInfo","465456465")
-                setToken(res.data.token)    
-                console.log(window.localStorage.getItem("userInfo"));    
+                setLocalstorage("Token",res.data.token)
+                setLocalstorage("UserInfo",res.data.userInfo)
                 router.push("/")
             }
 

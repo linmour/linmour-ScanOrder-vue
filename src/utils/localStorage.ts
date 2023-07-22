@@ -19,6 +19,10 @@ export function removeLocalstorage(key: string) {
     }
 }
 
+export function getUserInfo(){
+    return JSON.parse(getLocalstorage('UserInfo'))
+}
+
 
 
 

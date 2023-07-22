@@ -26,17 +26,41 @@
       </el-button>
     </div>
     <div style="margin: 10px 0">
-      <el-table :data="state.tableData" stripe border>
-        <el-table-column prop="name" label="名称"></el-table-column>
-        <el-table-column prop="intro" label="简介"></el-table-column>
-        <el-table-column prop="status" label="店铺状态"> </el-table-column>
-        <el-table-column label="操作" width="180">
+      <el-table ref="tableRef" row-key="date" :data="state.tableData" style="width: 100%">
+        <el-table-column
+            prop="createTime"
+            label="开店时间"
+            sortable
+            width="180"
+            column-key="createTime"
+
+        />
+        <el-table-column prop="name" label="名字" width="180" />
+        <el-table-column prop="position" label="所在城市"  />
+
+
+        <el-table-column
+            prop="businessStatus"
+            label="运营状态"
+            width="100"
+        >
           <template #default="scope">
-            <el-button type="primary" @click="edit(scope.row)">编辑</el-button>
-            <el-button type="danger">删除</el-button>
+            <el-tag
+                :type="scope.row.businessStatus === 1 ? '' : 'success'"
+                disable-transitions
+            >{{ scope.row.businessStatus === 1 ? '营业中' : '休息中'}}</el-tag
+            >
+          </template>
+        </el-table-column>
+        <el-table-column label="操作" width="230px" >
+          <template #default="scope">
+            <el-button type="primary" @click="edit(scope.row)">详情</el-button>
+            <el-button type="success" @click="router.push('/myshop/shop')">进入店铺</el-button>
           </template>
         </el-table-column>
       </el-table>
+
+
     </div>
     <el-dialog v-model="dialogFormVisible" title="信息" width="40%">
       <el-form :model="state.form" label-width="80px" style="padding: 0 20px" status-icon>
@@ -85,10 +109,12 @@ import {
   Search, RefreshLeft, Plus
 } from '@element-plus/icons-vue'
 import {onMounted, reactive, ref} from "vue";
-
+import { useRouter } from 'vue-router'
 import {shopList} from "../api/linmour-account/shop";
+import {setLocalstorage} from "../utils/localStorage";
 
 
+const router = useRouter()
 const state = reactive({
     tableData: [],
     queryParams: {
@@ -106,11 +132,13 @@ const reset = () =>{
   load()
 }
 
+
 const load = () => {
   shopList(state.queryParams).then(res =>{
     console.log(res)
     if (res.code === 200){
       state.tableData = res.data.list
+      console.log(state.tableData )
       total.value = res.data.total
     }
   })
@@ -124,8 +152,11 @@ const edit = (row) =>{
   dialogFormVisible.value = true
 }
 
+
+
 onMounted(() =>{
   load()
+
 })
 
 </script>

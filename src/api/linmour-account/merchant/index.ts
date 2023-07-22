@@ -16,3 +16,10 @@ export function logout(id) {
 export function userInfo() {
     return request.post('/account/merchant/userInfo');
 }
+
+
+export function update(userInfo) {
+    return request.post('/account/merchant/update',{
+        userInfo
+    });
+}

@@ -7,7 +7,10 @@
 
       <div style="flex: 1; display: flex">
         <div style="flex: 1">
-          中间
+
+          <el-icon @click="changIcon" size="60px">
+            <component :is="fold.isCollapse?'Fold':'Expand'"></component>
+          </el-icon>
         </div>
         <div style="width: 100px">
           <div style="text-align: right">{{ realName }}</div>
@@ -33,6 +36,7 @@
 import {logout} from "../api/linmour-account/merchant";
 import {getLocalstorage, removeLocalstorage} from "../utils/localStorage";
 import {useRouter} from "vue-router/dist/vue-router";
+import { useIsCollapseStore } from '../stores'
 
 const userInfo = (JSON.parse(getLocalstorage('UserInfo')));
 const avatar = userInfo.avatar
@@ -43,12 +47,17 @@ const Logout =() =>{
     if (res.code === 200){
       removeLocalstorage("Token")
       removeLocalstorage("UserInfo")
-
       router.push('/login')
     }
 
   }).catch(err =>{
-    console.log(err)
+
   })
+}
+
+const fold = useIsCollapseStore()
+const changIcon =()=>{
+  fold.change()
+
 }
 </script>

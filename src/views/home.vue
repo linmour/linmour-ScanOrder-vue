@@ -55,7 +55,7 @@
         <el-table-column label="操作" width="230px" >
           <template #default="scope">
             <el-button type="primary" @click="edit(scope.row)">详情</el-button>
-            <el-button type="success" @click="router.push('/myshop/shop')">进入店铺</el-button>
+            <el-button type="success" @click="entire">进入店铺</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -112,8 +112,9 @@ import {onMounted, reactive, ref} from "vue";
 import { useRouter } from 'vue-router'
 import {shopList} from "../api/linmour-account/shop";
 import {setLocalstorage} from "../utils/localStorage";
+import {useMenuStore} from "../stores";
 
-
+const mm = useMenuStore()
 const router = useRouter()
 const state = reactive({
     tableData: [],
@@ -135,20 +136,26 @@ const reset = () =>{
 
 const load = () => {
   shopList(state.queryParams).then(res =>{
-    console.log(res)
+
     if (res.code === 200){
       state.tableData = res.data.list
-      console.log(state.tableData )
+
       total.value = res.data.total
     }
   })
+}
+
+const entire = () =>{
+  // mm.setsort('2')
+  setLocalstorage("sort","2")
+  console.log(mm.getsort())
+  router.push('/shop')
 }
 
 const edit = (row) =>{
   state.form.name = row.name
   state.form.intro = row.intro
   state.form.status = row.status
-  console.log(row)
   dialogFormVisible.value = true
 }
 

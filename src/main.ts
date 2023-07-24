@@ -11,6 +11,7 @@ import 'virtual:svg-icons-register'
 import zhCn from 'element-plus/dist/locale/zh-cn.mjs'
 
 
+
 const app = createApp(App)
 app.use(createPinia())
 app.use(router)

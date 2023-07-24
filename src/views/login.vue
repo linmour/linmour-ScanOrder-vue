@@ -41,6 +41,8 @@ import { ref,reactive } from 'vue'
 import { login } from '@/api/linmour-account/merchant'
 import { useRouter } from 'vue-router'
 import {setLocalstorage} from "../utils/localStorage";
+import {getMenus} from "../api/linmour-account/menu";
+import {useMenuStore} from "../stores";
 
 
 const router = useRouter()
@@ -68,6 +70,8 @@ const rules = {
 
 const formRef = ref(null)
 const loading = ref(false)
+const mm = useMenuStore()
+
 const onSubmit = () => {
     loading.value = true
     formRef.value.validate((valid)=>{
@@ -80,11 +84,17 @@ const onSubmit = () => {
                 //保存信息，全局通用
                 setLocalstorage("Token",res.data.token)
                 setLocalstorage("UserInfo",res.data.userInfo)
+                getMenus().then(res=>{
+                  if (res.code === 200){
+                    mm.setsort('1')
+                    setLocalstorage("Menus",res.data)
+                    setLocalstorage("sort",'1')
+                    console.log('----------------------------------')
+                    console.log(mm.getsort())
+                  }
+                })
                 router.push("/")
             }
-
-
-            
         }).finally(() =>{
             loading.value = false
         })

@@ -103,13 +103,12 @@
 </template>
 
 <script lang="ts" setup>
-import {computed, nextTick, onBeforeMount, reactive, ref, UnwrapNestedRefs} from 'vue'
+import {computed, onBeforeMount, reactive, ref, UnwrapNestedRefs} from 'vue'
 import { Plus,View } from '@element-plus/icons-vue'
 import {getLocalstorage, getUserInfo, setLocalstorage} from "@/utils/localStorage";
 import {error, success} from "@/utils/tips";
 import { update } from "@/api/linmour-account/merchant";
-import { genFileId } from 'element-plus'
-import type { UploadInstance, UploadProps, UploadRawFile } from 'element-plus'
+import type { UploadInstance, UploadProps } from 'element-plus'
 
 const srcList = [];
 const imageUrl = ref('')
@@ -159,7 +158,7 @@ onBeforeMount(() => {
   userInfo = getUserInfo();
   imageUrl.value = userInfo.avatar;
   state.form = { ...userInfo };
-  console.log(state.form.idCardUrl)
+
   srcList.push(state.form.idCardUrl);
 });
 

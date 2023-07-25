@@ -146,10 +146,10 @@ const load = () => {
 }
 
 const entire = () =>{
-  // mm.setsort('2')
-  setLocalstorage("sort","2")
-  console.log(mm.getsort())
-  router.push('/shop')
+  mm.setSort('2')
+  // setLocalstorage("sort","2")
+  console.log(mm.getSort())
+  router.push('/overview')
 }
 
 const edit = (row) =>{

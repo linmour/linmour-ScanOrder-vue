@@ -86,11 +86,9 @@ const onSubmit = () => {
                 setLocalstorage("UserInfo",res.data.userInfo)
                 getMenus().then(res=>{
                   if (res.code === 200){
-                    mm.setsort('1')
+
+                    mm.setSort('1')
                     setLocalstorage("Menus",res.data)
-                    setLocalstorage("sort",'1')
-                    console.log('----------------------------------')
-                    console.log(mm.getsort())
                   }
                 })
                 router.push("/")

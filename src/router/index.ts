@@ -8,22 +8,36 @@ const routes = [
     redirect: '/home',
     children: [
       {
-        path: 'home', name: 'Home', component: () => import('@/views/home.vue')
+        path: 'home',
+        name: 'Home',
+        component: () => import('@/views/home.vue'),
+        meta: {
+          group: 'group1' // 设置路由所属的组名
+        }
       },
       {
         path: '/person',
         name: 'Person',
-        component: () => import('../views/person.vue')
+        component: () => import('@/views/person.vue'),
+        meta: {
+          group: 'group1' // 设置路由所属的组名
+        }
       },
       {
         path: '/open',
         name: 'Open',
-        component: () => import('../views/open.vue')
+        component: () => import('@/views/open.vue'),
+        meta: {
+          group: 'group1' // 设置路由所属的组名
+        }
       },
       {
-        path: '/shop',
-        name: 'Shop',
-        component: () => import('../views/shop.vue')
+        path: '/overview',
+        name: 'Overview',
+        component: () => import('@/views/overview.vue'),
+        meta: {
+          group: 'group2' // 设置路由所属的组名
+        }
       },
     ]
   },

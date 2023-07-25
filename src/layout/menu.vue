@@ -6,7 +6,7 @@
   >
     <div v-for="item in menus" :key="item.id">
       <div v-if="item.parentId === 0 && item.path !== ''">
-        <el-menu-item :index="item.path" v-if="(item.sort == num)">
+        <el-menu-item :index="item.path" v-if="(item.sort == num) ">
           <el-icon v-if="item.icon">
             <component :is="'Fold'"></component>
           </el-icon>
@@ -44,22 +44,44 @@
 
 
 import {useMenuStore} from "../stores";
-import {onMounted, ref} from "vue";
+import {onMounted, ref, watch} from "vue";
 import {getLocalstorage} from "../utils/localStorage";
 
-const menu = useMenuStore()
-const num =ref()
+
 
 
 const  menus = ref()
 
 onMounted(() =>{
   menus.value = JSON.parse(getLocalstorage("Menus"))
-  console.log(typeof menus.value)
-  // num.value = menu.sort
-  num.value = getLocalstorage("sort")
-  console.log(typeof num.value)
+  num.value = menu.getSort()
+  // num.value = getLocalstorage("sort")
 
 })
+
+
+
+
+const menu = useMenuStore()
+const num = ref(menu.getSort())
+
+const reloadComponent = () => {
+  num.value = menu.getSort()
+}
+
+watch(
+    () => menu.getSort(), // 监听menu.getSort()的变化
+    (newValue, oldValue) => {
+      console.log(num, newValue, oldValue)
+      oldValue = oldValue || '1'
+      if (newValue !== oldValue) {
+        console.log('--------------')
+        console.log(num.value)
+        reloadComponent()
+      }
+    },
+    { immediate: true }
+)
+
 
 </script>

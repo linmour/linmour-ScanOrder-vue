@@ -17,5 +17,4 @@ import HeaderBar from '../layout/header.vue';
 import Menu from "../layout/menu.vue";
 
 
-
 </script>

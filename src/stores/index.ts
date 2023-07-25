@@ -1,26 +1,36 @@
-// stores/counter.js
-import { defineStore } from 'pinia'
-import {reactive, ref} from "vue";
+import { createPinia, defineStore } from 'pinia'
+import { createPersistedState } from 'pinia-persistedstate-plugin'
 
-export const useIsCollapseStore = defineStore('fold', () =>{
-  const isCollapse = ref(false)
-    function change(){
-      isCollapse.value = !isCollapse.value
-    }
-    return {isCollapse,change}
+
+export const pinia = createPinia()
+
+export const useIsCollapseStore = defineStore({
+  id: 'fold',
+  state: () => ({
+    isCollapse: false,
+  }),
+  actions: {
+    change() {
+      this.isCollapse = !this.isCollapse
+    },
+  },
+})
+createPersistedState(useIsCollapseStore)
+
+export const useMenuStore = defineStore({
+  id: 'menuStore',
+  state: () => ({
+    sort: '1',
+  }),
+  actions: {
+    setSort(value) {
+      this.sort = value
+    },
+    getSort() {
+      return this.sort
+    },
+  },
 })
 
-export const useMenuStore = defineStore('menu',()=>{
-  let sort = ref('1')
-  function setsort(i:any){
-    sort.value = i
-  }
-  function getsort(){
-    return sort.value
-  }
-
-
-  return{sort,setsort,getsort}
-
-})
-
+pinia.use(createPersistedState())
+export default pinia

@@ -1,6 +1,7 @@
 import router from "@/router"
 import { error } from "@/utils/tips"
 import {getLocalstorage} from "@/utils/localStorage";
+import {useMenuStore} from "@/stores";
 
 
 // 全局前置守卫  to是去哪个路径，from是从哪里来
@@ -20,5 +21,18 @@ router.beforeEach((to,from,next)=>{
         return next({ path:from.path ? from.path : "/" })
     }
 
+    const group = to.meta.group
+    const store = useMenuStore()
+    if (group === 'group1') {
+        // 对group1中的路由进行操作
+        // 例如更改对应的Pinia中的变量值
+        store.setSort('1')
+    } else if (group === 'group2') {
+        // 对group2中的路由进行操作
+        // 例如更改对应的Pinia中的变量值
+        store.setSort('2')
+    }
+
     next()
 })
+

@@ -13,9 +13,9 @@ export function logout(id) {
     return request.post('/account/merchant/logout/'+id);
 }
 
-export function userInfo() {
-    return request.post('/account/merchant/userInfo');
-}
+// export function userInfo() {
+//     return request.post('/account/merchant/userInfo');
+// }
 
 
 export function update(userInfo) {

@@ -39,6 +39,55 @@ const routes = [
           group: 'group2' // 设置路由所属的组名
         }
       },
+      {
+        path: '/detail',
+        name: 'Detail',
+        component: () => import('@/views/detail.vue'),
+        meta: {
+          group: 'group2' // 设置路由所属的组名
+        }
+      },
+      {
+        path: '/subclass',
+        name: 'Subclass',
+        component: () => import('@/views/subclass.vue'),
+        meta: {
+          group: 'group2' // 设置路由所属的组名
+        }
+      },
+      {
+        path: '/order',
+        name: 'Order',
+        component: () => import('@/views/order.vue'),
+        meta: {
+          group: 'group2' // 设置路由所属的组名
+        }
+      },
+      {
+        path: '/seat',
+        name: 'Seat',
+        component: () => import('@/views/seat.vue'),
+        meta: {
+          group: 'group2' // 设置路由所属的组名
+        }
+      },
+      {
+        path: '/inventory',
+        name: 'Inventory',
+        component: () => import('@/views/inventory.vue'),
+        meta: {
+          group: 'group2' // 设置路由所属的组名
+        }
+      },
+      {
+        path: '/dishes',
+        name: 'Dishes',
+        component: () => import('@/views/dishes.vue'),
+        meta: {
+          group: 'group2' // 设置路由所属的组名
+        }
+      },
+
     ]
   },
   {

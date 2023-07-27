@@ -32,5 +32,20 @@ export const useMenuStore = defineStore({
   },
 })
 
+export const useShopStore = defineStore({
+  id: 'shopStore',
+  state: () => ({
+    shopId: '1',
+  }),
+  actions:{
+    setShopId(id){
+      this.shopId = id;
+    },
+    getShopId(){
+      return this.shopId;
+    }
+  }
+})
+
 pinia.use(createPersistedState())
 export default pinia

@@ -26,7 +26,7 @@
       </el-button>
     </div>
     <div style="margin: 10px 0">
-      <el-table ref="tableRef" row-key="date" :data="state.tableData" style="width: 100%">
+      <el-table  row-key="date" :data="state.tableData" style="width: 100%">
         <el-table-column
             prop="createTime"
             label="开店时间"
@@ -55,7 +55,7 @@
         <el-table-column label="操作" width="230px" >
           <template #default="scope">
             <el-button type="primary" @click="edit(scope.row)">详情</el-button>
-            <el-button type="success" @click="entire">进入店铺</el-button>
+            <el-button type="success" @click="entire(scope.row)">进入店铺</el-button>
           </template>
         </el-table-column>
       </el-table>
@@ -112,9 +112,10 @@ import {onMounted, reactive, ref} from "vue";
 import { useRouter } from 'vue-router'
 import {shopList} from "../api/linmour-account/shop";
 import {setLocalstorage} from "../utils/localStorage";
-import {useMenuStore} from "../stores";
+import {useMenuStore, useShopStore} from "../stores";
 
-const mm = useMenuStore()
+const MenuStore = useMenuStore()
+const ShopStore = useShopStore()
 const router = useRouter()
 const state = reactive({
     tableData: [],
@@ -145,10 +146,9 @@ const load = () => {
   })
 }
 
-const entire = () =>{
-  mm.setSort('2')
-  // setLocalstorage("sort","2")
-  console.log(mm.getSort())
+const entire = (row) =>{
+  ShopStore.setShopId(row.id)
+  MenuStore.setSort('2')
   router.push('/overview')
 }
 

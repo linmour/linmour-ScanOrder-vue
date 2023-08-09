@@ -4,7 +4,7 @@ export function getLocalstorage(key: string) {
     return value
 }
 
-export function setLocalstorage(key: string, value: string) {
+export function setLocalstorage(key: string, value: any) {
     if (key && value !== '') {
         if (typeof value === 'object') {
             value = JSON.stringify(value)

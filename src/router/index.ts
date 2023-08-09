@@ -50,7 +50,7 @@ const routes = [
       {
         path: '/subclass',
         name: 'Subclass',
-        component: () => import('@/views/subclass.vue'),
+        component: () => import('@/component/upoloadProduct.vue'),
         meta: {
           group: 'group2' // 设置路由所属的组名
         }
@@ -83,6 +83,14 @@ const routes = [
         path: '/dishes',
         name: 'Dishes',
         component: () => import('@/views/dishes.vue'),
+        meta: {
+          group: 'group2' // 设置路由所属的组名
+        }
+      },
+      {
+        path: '/addProduct',
+        name: 'AddProduct',
+        component: () => import('@/views/addProduct.vue'),
         meta: {
           group: 'group2' // 设置路由所属的组名
         }

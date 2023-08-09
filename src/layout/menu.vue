@@ -18,7 +18,7 @@
         <el-sub-menu :index="item.id + ''" v-if="(item.sort == num)">
           <template #title>
             <el-icon v-if="item.icon">
-              <component :is="Fold"></component>
+              <component :is=""></component>
             </el-icon>
             <span>{{ item.name }}</span>
           </template>
@@ -27,7 +27,7 @@
 
               <template #title>
                 <el-icon v-if="subItem.icon">
-                  <component :is="Fold"></component>
+                  <component :is=""></component>
                 </el-icon>
                 <span>{{ subItem.name }}</span>
               </template>
@@ -75,8 +75,6 @@ watch(
       console.log(num, newValue, oldValue)
       oldValue = oldValue || '1'
       if (newValue !== oldValue) {
-        console.log('--------------')
-        console.log(num.value)
         reloadComponent()
       }
     },

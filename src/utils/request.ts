@@ -1,6 +1,7 @@
 import axios from 'axios'
 import { success,error } from '@/utils/tips'
-import {getLocalstorage} from "@/utils/localStorage";
+import {getLocalstorage, removeLocalstorage} from "@/utils/localStorage";
+import router from "@/router";
 
 // 配置请求的跟路径
 axios.defaults.baseURL = 'api'
@@ -14,9 +15,9 @@ axios.interceptors.request.use(function (config) {
   config.timeout = 5000;
   // 往header头自动添加token
   const token = getLocalstorage("Token")
-  
   if(token){
       config.headers["Token"] = token
+
   }
 
   return config;
@@ -32,6 +33,10 @@ axios.interceptors.response.use(function (response) {
     success(response.data.msg)
   }else{
     error(response.data.msg)
+  }
+  if (response.data.code === 401){
+    removeLocalstorage("Token")
+    // router.push("/login")
   }
 
   // 这个就直接是对返回的数据进行操作了

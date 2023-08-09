@@ -59,9 +59,8 @@
           </template>
         </el-table-column>
       </el-table>
-
-
     </div>
+
     <el-dialog v-model="dialogFormVisible" title="信息" width="40%">
       <el-form :model="state.form" label-width="80px" style="padding: 0 20px" status-icon>
         <el-form-item prop="name" label="名字" >
@@ -80,27 +79,11 @@
       <template #footer>
       <span class="dialog-footer">
         <el-button @click="dialogFormVisible = false">取消</el-button>
-        <el-button type="primary" @click="save">
-          保存
-        </el-button>
       </span>
       </template>
     </el-dialog>
 
-
-
-    <div style="margin: 10px 0">
-      <el-pagination
-          @current-change="load"
-          @size-change="load"
-          v-model:current-page="state.queryParams.pageNo"
-          v-model:page-size="state.queryParams.pageSize"
-          background
-          :page-sizes="[1, 5, 10, 20]"
-          :total="total"
-          layout="total, sizes, prev, pager, next, jumper"
-      />
-    </div>
+    <page @update:params="handleParams" :type="1" :param="state.queryParams"/>
   </div>
 </template>
 
@@ -108,11 +91,11 @@
 import {
   Search, RefreshLeft, Plus
 } from '@element-plus/icons-vue'
-import {onMounted, reactive, ref} from "vue";
+import {onMounted, reactive, ref, watch} from "vue";
 import { useRouter } from 'vue-router'
-import {shopList} from "../api/linmour-account/shop";
-import {setLocalstorage} from "../utils/localStorage";
+
 import {useMenuStore, useShopStore} from "../stores";
+import Page from "../component/paging.vue";
 
 const MenuStore = useMenuStore()
 const ShopStore = useShopStore()
@@ -127,24 +110,26 @@ const state = reactive({
     },
   form:{}
 })
+
+const handleParams = (newParams) => {
+
+  state.tableData = newParams;
+  console.log(state.tableData)
+}
+watch(state.tableData, (newVal) => {
+
+  handleParams(newVal);
+}, { deep: true });
+
+
 const dialogFormVisible = ref(false)
-const total = ref(0)
 const reset = () =>{
   state.queryParams.name = undefined
-  load()
+
+
 }
 
 
-const load = () => {
-  shopList(state.queryParams).then(res =>{
-
-    if (res.code === 200){
-      state.tableData = res.data.list
-
-      total.value = res.data.total
-    }
-  })
-}
 
 const entire = (row) =>{
   ShopStore.setShopId(row.id)
@@ -162,7 +147,7 @@ const edit = (row) =>{
 
 
 onMounted(() =>{
-  load()
+  // load()
 
 })
 

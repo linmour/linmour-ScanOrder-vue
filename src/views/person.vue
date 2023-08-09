@@ -173,6 +173,7 @@ const save =()=>{
 }
 
 const beforeUpload: UploadProps['beforeUpload'] = (rawFile) => {
+  console.log(rawFile)
   loading.value = true
   if (rawFile.type !== 'image/jpeg' && rawFile.type !== 'image/png') {
     error('Avatar picture must be JPG or PNG format!');

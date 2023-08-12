@@ -58,7 +58,7 @@ export default {
   watch: {
     param(newValue, oldValue) {
       if (newValue) {
-
+        console.log('上传图片')
         // 在这里处理 isUpload 变化的逻辑
         this.formDate = new FormData()
         this.$refs.upload.submit();

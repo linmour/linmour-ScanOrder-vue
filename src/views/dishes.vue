@@ -64,41 +64,45 @@
       <el-form-item prop="intro" label="简介">
         <el-input :readonly="true" v-model="state.form.intro" autocomplete="off"/>
       </el-form-item>
-      <el-form-item prop="intro" label="规格">
-        <!--        v-model绑定的是value，就是要显示的-->
-        <el-select @change="sizeChange" @blur="sizeBlur" v-model="sizeId" placeholder="Select" multiple
-                   default-first-option>
-          <el-option
-              v-for="item in ProductDetails.productSizeAndPriceList"
-              :key="item.id"
-              :label="item.size"
-              :value="item.id"
-          >
-            <span style="float: left">{{ item.size }}</span>
-            <span
-                style="
-          float: right;
-          color: var(--el-text-color-secondary);
-          font-size: 13px;
-        ">
-              {{ item.price }}
-            </span>
-          </el-option>
-        </el-select>
+
+      <el-form-item label="普通选项">
+        <el-tabs v-model="nonValueActiveName" @tab-click="nonValuehandleClick" type="card">
+          <div v-for="item in productDetails.nonValueList" :key="item.sort">
+            <el-tab-pane :label="item.sort" :name="item.sort">
+              <el-tag
+                  v-for="it in item.spec"
+                  :key="item.sort"
+                  class="mx-1"
+                  effect="dark"
+              >
+                {{ it }}
+              </el-tag>
+            </el-tab-pane>
+          </div>
+        </el-tabs>
+      </el-form-item>
+      <el-form-item label="价值选项">
+        <el-tabs v-model="ValueActiveName" @tab-click="ValuehandleClick" type="card">
+          <div v-for="item in productDetails.valueList" :key="item.sort">
+            <el-tab-pane :label="item.sort" :name="item.sort">
+
+                <el-tag
+                    v-for="(it,index) in item.spec"
+                    :key="item.sort"
+                    class="mx-1"
+                    effect="dark"
+                >
+                  {{ it }}     ￥ {{ item.price[index]}}
+                </el-tag>
+
+
+            </el-tab-pane>
+          </div>
+        </el-tabs>
       </el-form-item>
 
-      <el-form-item prop="intro" label="口味">
-        <el-select v-model="tasteId" placeholder="无" multiple filterable allow-create>
-          <el-option
-              v-for="item in ProductDetails.tasteAndId"
-              :key="item.id"
-              :label="item.taste"
-              :value="item.id"
-          >
-            <span style="float: left">{{ item.taste }}</span>
-          </el-option>
-        </el-select>
-      </el-form-item>
+
+
       <el-form-item>
         <el-button @click="edit">修改</el-button>
       </el-form-item>
@@ -155,9 +159,18 @@ const addProduct = () => {
 
 const shopId = JSON.parse(getLocalstorage("pinia-shopStore")).shopId
 const activeName = ref(1)
+const ValueActiveName = ref('')
+const nonValueActiveName = ref('')
 const handleClick = (tab: TabsPaneContext, event: Event) => {
   state.queryParams.sortId = tab.props.name
   // console.log(tab, event)
+}
+const ValuehandleClick = (tab: TabsPaneContext, event: Event) => {
+  ValueActiveName.value = tab.props.name
+}
+const nonValuehandleClick = (tab: TabsPaneContext, event: Event) => {
+  nonValueActiveName.value = tab.props.name
+  // console.log(tab,event)
 }
 const state = reactive({
   tableData: [],
@@ -196,29 +209,19 @@ watch(state.tableData, (newVal) => {
 
 const drawerFormVisible = ref(false)
 
-const ProductDetails = reactive({
-  productSizeAndPriceList: [],
-  tasteAndId: []
+const productDetails = reactive({
+  nonValueList: [],
+  valueList: []
 
 });
-const sizeId = ref()
-const tasteId = ref()
+
 const details = (row) => {
-  sizeId.value = null
-  tasteId.value = null
   state.form = row
   getProductDetails(row.id).then(res => {
     if (res.code === 200) {
       state.productId = res.data.id;
-      ProductDetails.productSizeAndPriceList = res.data.productSizeAndPriceList
-      ProductDetails.tasteAndId = res.data.tasteAndId
-      if (ProductDetails.productSizeAndPriceList !== null) {
-        sizeId.value = ProductDetails.productSizeAndPriceList.filter(m => m.status === 1).map(m => m.id)
-
-      }
-      if (ProductDetails.tasteAndId !== null) {
-        tasteId.value = ProductDetails.tasteAndId.filter(m => m.status === 1).map(m => m.id)
-      }
+      productDetails.nonValueList = res.data.nonValueList;
+      productDetails.valueList = res.data.valueList
     }
   })
   drawerFormVisible.value = true

@@ -1,12 +1,12 @@
 <template>
-  <div class="common-layout" v-loading="loading">
+  <div class="common-layout">
     <el-container>
       <el-main>
         <div>
           <el-card style="width: 60%;height: 800px; margin: 80px auto">
             <el-form style="width: 70%; margin: 60px auto" label-width="80px">
               <div style="text-align: center">
-               <UpoloadProduct :param="isUpload" :imgUrl="state.form.urlList"  @uploadComplete="handleUploadComplete"/>
+                <UpoloadProduct :param="isUpload" :imgUrl="state.form.urlList" @uploadComplete="handleUploadComplete"/>
               </div>
               <div style="margin: 100px; width: 800px; ">
                 <el-form-item label="菜名">
@@ -15,7 +15,7 @@
                 <el-form-item label="简介">
                   <el-input class="width70" v-model="state.form.intro" placeholder="简介"></el-input>
                 </el-form-item>
-                <el-form-item>
+                <el-form-item label="分类">
                   <el-select
                       v-model="state.sortList.id"
                       filterable
@@ -33,6 +33,9 @@
                   </el-select>
                 </el-form-item>
 
+                <el-form-item label="基础价格">
+                  <el-input class="width70" v-model="state.form.price"></el-input>
+                </el-form-item>
 
 
                 <el-form-item label="价值选项">
@@ -89,7 +92,7 @@
                 </el-form-item>
 
 
-                <el-form-item style="margin-left: 150px" >
+                <el-form-item style="margin-left: 150px">
                   <el-button @click="save">保存</el-button>
                 </el-form-item>
               </div>
@@ -102,68 +105,68 @@
     </el-container>
   </div>
 
-<!--添加规格属性窗口-->
-<div v-if="dialogTableVisible === 'non' || dialogTableVisible === 'value'">
-  <el-dialog v-model="a" title="添加选项" @close="dialogClose">
+  <!--添加规格属性窗口-->
+  <div v-if="dialogTableVisible === 'non' || dialogTableVisible === 'value'">
+    <el-dialog v-model="a" title="添加选项" @close="dialogClose">
 
-    <el-form-item label="规格属性" v-if=" dialogTableVisible === 'value'">
-      <el-tag
-          style="margin: 10px"
-          v-for="(tag,index) in valueSpec"
-          :key="tag"
-          class="mx-1"
-          closable
-          :disable-transitions="false"
-          @close="valueHandleClose(tag,true,index)"
-      >
-        {{ tag }}
-        <el-input v-model="valuePrice[index]" style="width: 80px" placeholder="价钱/元"
-                  @keyup.enter="PriceHandleInput(index)"
-                  @blur="PriceHandleInput(index)"
-/>
-      </el-tag>
-      <el-input
-          v-if="valueSpecInputVisible"
-          ref="valueSpecInputRef"
-          v-model="valueSpecInput"
-          class="ml-1 w-20"
-          size="small"
-          @keyup.enter="valueHandleInput(null)"
-          @blur="valueHandleInput(null)"
-      />
-      <el-button v-else class="button-new-tag ml-1" size="small" @click="valueShowInput(true)">
-        + New Tag
-      </el-button>
-    </el-form-item>
+      <el-form-item label="价值属性" v-if=" dialogTableVisible === 'value'">
+        <el-tag
+            style="margin: 10px"
+            v-for="(tag,index) in valueSpec"
+            :key="tag"
+            class="mx-1"
+            closable
+            :disable-transitions="false"
+            @close="valueHandleClose(tag,true,index)"
+        >
+          {{ tag }}
+          <el-input v-model="valuePrice[index]" style="width: 80px" placeholder="价钱/元"
+                    @keyup.enter="PriceHandleInput(index)"
+                    @blur="PriceHandleInput(index)"
+          />
+        </el-tag>
+        <el-input
+            v-if="valueSpecInputVisible"
+            ref="valueSpecInputRef"
+            v-model="valueSpecInput"
+            class="ml-1 w-20"
+            size="small"
+            @keyup.enter="valueHandleInput(null)"
+            @blur="valueHandleInput(null)"
+        />
+        <el-button v-else class="button-new-tag ml-1" size="small" @click="valueShowInput(true)">
+          + New Tag
+        </el-button>
+      </el-form-item>
 
-    <el-form-item label="普通选项" v-else >
-      <el-tag
-          style="margin: 10px"
-          v-for="(tag,index) in nonValueSpec"
-          :key="tag"
-          class="mx-1"
-          closable
-          :disable-transitions="false"
-          @close="nonValueHandleClose(tag,true,index)"
+      <el-form-item label="普通选项" v-else>
+        <el-tag
+            style="margin: 10px"
+            v-for="(tag,index) in nonValueSpec"
+            :key="tag"
+            class="mx-1"
+            closable
+            :disable-transitions="false"
+            @close="nonValueHandleClose(tag,true,index)"
 
-      >
-        {{ tag }}
-      </el-tag>
-      <el-input
-          v-if="nonValueSpecInputVisible"
-          ref="nonValueSpecInputRef"
-          v-model="nonValueSpecInput"
-          class="ml-1 w-20"
-          size="small"
-          @keyup.enter="nonValueHandleInput(null)"
-          @blur="nonValueHandleInput(null)"
-      />
-      <el-button v-else class="button-new-tag ml-1" size="small" @click="nonValueShowInput(true)">
-        + New Tag
-      </el-button>
-    </el-form-item>
-  </el-dialog>
-</div>
+        >
+          {{ tag }}
+        </el-tag>
+        <el-input
+            v-if="nonValueSpecInputVisible"
+            ref="nonValueSpecInputRef"
+            v-model="nonValueSpecInput"
+            class="ml-1 w-20"
+            size="small"
+            @keyup.enter="nonValueHandleInput(null)"
+            @blur="nonValueHandleInput(null)"
+        />
+        <el-button v-else class="button-new-tag ml-1" size="small" @click="nonValueShowInput(true)">
+          + New Tag
+        </el-button>
+      </el-form-item>
+    </el-dialog>
+  </div>
 
 </template>
 
@@ -173,27 +176,32 @@ import {getLocalstorage} from "@/utils/localStorage";
 
 import {ElInput} from "element-plus";
 import {addProduct, getProductDetails, getProductSort, updateProduct} from "@/api/linmour-product/product";
-import  UpoloadProduct  from '@/component/upoloadProduct.vue'
+import UpoloadProduct from '@/component/upoloadProduct.vue'
 import router from "@/router";
 import {useRoute} from "vue-router";
 import {log} from "echarts/types/src/util/log";
+import {Logger} from "sass";
+import {error} from "@/utils/tips";
+
 const a = ref(true)
-const specSortList = ref([])
 
 
-const nonValueEcho =(index, type) =>{
+const nonValueEcho = (index, type) => {
   dialogTableVisible.value = type
-  const  a = state.form.nonValueList[index].spec
+  const a = state.form.nonValueList[index].spec
   nonValueSpec.value = (a)
+  NONVALUEINDEX.value = index;
 }
 
-const valueEcho =(index, type) =>{
+const valueEcho = (index, type) => {
   dialogTableVisible.value = type
-  const  a = state.form.valueList[index].spec
-  const  b = state.form.valueList[index].price
+  const a = state.form.valueList[index].spec
+  const b = state.form.valueList[index].price
 
   valueSpec.value = (a)
   valuePrice.value = (b)
+  VALUEINDEX.value = index;
+
 }
 
 //输入的值
@@ -211,51 +219,46 @@ const valueSpecInputRef = ref<InstanceType<typeof ElInput>>()
 const nonValueSpecInputRef = ref<InstanceType<typeof ElInput>>()
 const nonValueSortInputRef = ref<InstanceType<typeof ElInput>>()
 
-const dialogClose =()=>{
+const dialogClose = () => {
   dialogTableVisible.value = ''
-  nonValueSpec.value =[]
-  valueSpec.value =[]
-  valuePrice.value =[]
+  nonValueSpec.value = []
+  valueSpec.value = []
+  valuePrice.value = []
 
 }
 
-const valueHandleClose = (tag: string,bool,index) => {
-  if (bool){
-    valueSpec.value.splice(valueSpec.value.indexOf(tag), 1)
-    state.form.valueList.splice(state.form.valueList.indexOf(tag), 1)
+const valueHandleClose = (tag: string, bool, index) => {
+  if (bool) {
+    state.form.valueList[VALUEINDEX.value].spec.splice(state.form.valueList[VALUEINDEX.value].spec.indexOf(tag), 1)
+    state.form.valueList[VALUEINDEX.value].price.splice(state.form.valueList[VALUEINDEX.value].price.indexOf(tag), 1)
 
-  }else {
+  } else {
     valueSort.value.splice(valueSort.value.indexOf(tag), 1)
     state.form.valueList.splice(index, 1)
 
   }
 
 }
-//bool表示内外层
-const nonValueHandleClose = (tag: string, bool,index) => {
-  //spec
-  if (bool){
-    nonValueSpec.value.splice(nonValueSpec.value.indexOf(tag), 1)
-    state.form.nonValueList.splice(state.form.nonValueList.indexOf(tag), 1)
-  }else{
+//bool表示内外层`
+const nonValueHandleClose = (tag: string, bool, index) => {
+  //spec内层
+  if (bool) {
+    state.form.nonValueList[NONVALUEINDEX.value].spec.splice(state.form.nonValueList[NONVALUEINDEX.value].spec.indexOf(tag), 1)
+  } else {
     nonValueSort.value.splice(nonValueSort.value.indexOf(tag), 1)
     state.form.nonValueList.splice(index, 1)
   }
-
-
 }
 
 
 const nonValueShowInput = (bool) => {
   //内层spec
-  if (bool){
+  if (bool) {
     nonValueSpecInputVisible.value = true
     nextTick(() => {
       nonValueSpecInputRef.value!.input!.focus()
     })
-
-
-  }else {
+  } else {
     nonValueSortInputVisible.value = true
     nextTick(() => {
       nonValueSortInputRef.value!.input!.focus()
@@ -263,83 +266,16 @@ const nonValueShowInput = (bool) => {
   }
 
 }
-
-const PriceHandleInput = (index) => {
-  if (valuePrice.value[index] && valuePrice.value[index] != undefined){
-
-    state.form.valueList[state.form.valueList.length-1<0?0:state.form.valueList.length-1].price[index]= (valuePrice.value[index])
-    valuePrice.value.push(valuePrice.value[index])
-  }
-  nonValueSpecInputVisible.value = false
-}
-//输入的值
-const nonValueHandleInput = (type) => {
-  //不等于空说明是第一层，也就是分类sort
-  if (type != null){
-    if (nonValueSortInput.value && nonValueSortInput.value.length !=0) {
-      state.form.nonValueList.push({'sort':nonValueSortInput.value,'spec':[]})
-      nonValueSort.value.push(nonValueSortInput.value)
-      dialogTableVisible.value = type
-    }
-    nonValueSortInput.value = ''
-    nonValueSortInputVisible.value = false
-
-  }else {
-    if (nonValueSpecInput.value && nonValueSpecInput.value.length != 0) {
-      const index = state.form.nonValueList.length - 1 < 0 ? 0 : state.form.nonValueList.length - 1;
-
-      //TODO
-      //这里的state.form.nonValueList要在进一层
-      console.log(state.form.nonValueList)
-      state.form.nonValueList[index].spec.push(nonValueSpecInput.value)
-      nonValueSpec.value.push(nonValueSpecInput.value)
-    }
-    nonValueSpecInput.value = ''
-    nonValueSpecInputVisible.value = false
-
-  }
-
-
-}
-
-const valueHandleInput = (type) => {
-//不等于空说明是第一层，也就是分类sort
-  if (type != null){
-    if (valueSortInput.value && valueSortInput.value.length!=0) {
-      state.form.valueList.push({'sort':valueSortInput.value,'spec':[],'price':[]})
-      valueSort.value.push(valueSortInput.value)
-      dialogTableVisible.value = type
-    }
-    valueSortInput.value = ''
-    valueSortInputVisible.value = false
-    console.log('+++++++++++++')
-    console.log(valueSort.value)
-  }else {
-    if (valueSpecInput.value && valueSpecInput.value.length !=0) {
-      const index = state.form.valueList.length - 1 < 0 ? 0 : state.form.valueList.length - 1;
-      state.form.valueList[index].spec.push(valueSpecInput.value)
-      state.form.valueList[index].price.push(valuePrice.value[index])
-      valueSpec.value.push(valueSpecInput.value)
-
-    }
-    valueSpecInput.value = ''
-    valueSpecInputVisible.value = false
-    priceInput.value = ''
-  }
-
-  //去掉数组最后一个，要不然会有bug
-  valuePrice.value.pop()
-}
 const valueShowInput = (bool) => {
   //内层spec
-  if (bool){
+  if (bool) {
     valueSpecInputVisible.value = true
     nextTick(() => {
       valueSpecInputRef.value!.input!.focus()
     })
 
 
-  }else {
+  } else {
     valueSortInputVisible.value = true
     nextTick(() => {
       valueSortInputRef.value!.input!.focus()
@@ -347,6 +283,68 @@ const valueShowInput = (bool) => {
   }
 
 }
+const PriceHandleInput = (index) => {
+  if (valuePrice.value[index] && valuePrice.value[index] != undefined) {
+
+    state.form.valueList[VALUEINDEX.value].price[index] = (valuePrice.value[index])
+    valuePrice.value = state.form.valueList[VALUEINDEX.value].price
+  }
+  nonValueSpecInputVisible.value = false
+}
+
+
+//外层的索引
+const NONVALUEINDEX = ref(0)
+const VALUEINDEX = ref(0)
+//输入的值
+const nonValueHandleInput = (type) => {
+  //不等于空说明是第一层，也就是分类sort
+  if (type != null) {
+    if (nonValueSortInput.value && nonValueSortInput.value.length != 0) {
+      state.form.nonValueList.push({'sort': nonValueSortInput.value, 'spec': []})
+      nonValueSort.value.push(nonValueSortInput.value)
+      dialogTableVisible.value = type
+      NONVALUEINDEX.value = state.form.nonValueList.length - 1 < 0 ? 0 : state.form.nonValueList.length - 1;
+    }
+    nonValueSortInput.value = ''
+    nonValueSortInputVisible.value = false
+
+  } else {
+    if (nonValueSpecInput.value && nonValueSpecInput.value.length != 0) {
+      state.form.nonValueList[NONVALUEINDEX.value].spec.push(nonValueSpecInput.value)
+      nonValueSpec.value = state.form.nonValueList[NONVALUEINDEX.value].spec
+    }
+    nonValueSpecInput.value = ''
+    nonValueSpecInputVisible.value = false
+  }
+}
+
+const valueHandleInput = (type) => {
+//不等于空说明是第一层，也就是分类sort
+  if (type != null) {
+    if (valueSortInput.value && valueSortInput.value.length != 0) {
+      state.form.valueList.push({'sort': valueSortInput.value, 'spec': [], 'price': []})
+      valueSort.value.push(valueSortInput.value)
+      dialogTableVisible.value = type
+      VALUEINDEX.value = state.form.valueList.length - 1 < 0 ? 0 : state.form.valueList.length - 1;
+    }
+    valueSortInput.value = ''
+    valueSortInputVisible.value = false
+  } else {
+    if (valueSpecInput.value && valueSpecInput.value.length != 0) {
+      console.log(state.form.valueList[VALUEINDEX.value])
+      state.form.valueList[VALUEINDEX.value].spec.push(valueSpecInput.value)
+      valueSpec.value = state.form.valueList[VALUEINDEX.value].spec
+    }
+    valueSpecInput.value = ''
+    valueSpecInputVisible.value = false
+    priceInput.value = ''
+  }
+  console.log(valuePrice.value)
+  //去掉数组最后一个，要不然会有bug
+  // valuePrice.value.pop()
+}
+
 
 const nonValueSpec = ref([])
 const nonValueSort = ref([])
@@ -356,80 +354,107 @@ const valuePrice = ref([])
 
 const state = reactive({
   form: {
-    nonValueList:[],
-    valueList:[],
-    sortId:Number,
+    //[
+    //{"sort":"1","spec":[1,2,3],"price":[1,2,3]},
+    //{"sort":"1","spec":[1,2,3],"price":[1,2,3]},
+    //{"sort":"1","spec":[1,2,3],"price":[1,2,3]}
+    //]
+    nonValueList: [],
+    valueList: [],
+    sortId: Number,
     shopId: Number,
-    urlList:[]
+    urlList: []
   },
-  sortList:[]
+  sortList: []
 })
 const dialogTableVisible = ref('')
 const isUpload = ref(false)
-const save = () =>{
+const save = () => {
   isUpload.value = true;
 }
 //子组件触发
-const   handleUploadComplete = (urlList) => {
+const handleUploadComplete = (urlList) => {
   console.log(urlList)
   isUpload.value = false; // 在事件处理函数中将 param 设置为 false
-  state.form.sortId = state.sortList.id
   state.form.shopId = shopId
   state.form.urlList = urlList
-  console.log(typeof state.form.urlList )
-  //修改
-  if (productId.value !== undefined && productId.value.length>0){
-    console.log("update")
-    updateProduct(state.form).then(res =>{
-      if (res.code === 200){
-        router.push("dishes")
-      }
-    })
-    //新增
-  }else {
-    addProduct(state.form).then(res =>{
-      if (res.code === 200){
-        router.push("dishes")
 
-      }
-    })
+  let flag = true
+  state.form.nonValueList.forEach(m => {
+    if (m.spec.length === 0) {
+      error('普通选项 “' + m.sort + '” 没有可选值')
+      flag = false
+    }
+  })
+  state.form.valueList.forEach(m => {
+    if (m.spec.length === 0 || m.price.length === 0) {
+      error('价值选项 “' + m.sort + '” 没有可选值')
+      flag = false
+    }
+  })
+  if (flag) {
+        //修改
+    if (productId.value !== undefined && productId.value.length > 0) {
+      updateProduct(state.form).then(res => {
+        console.log(state.form)
+        if (res.code === 200) {
+
+        }
+      })
+      //新增
+    } else {
+      state.form.sortId =  state.sortList.id
+      addProduct(state.form).then(res => {
+        if (res.code === 200) {
+
+        }
+      })
+    }
+    state.form.name = ''
+    state.form.intro = ''
+    state.form.price = ''
+    state.sortList.id = ''
+    valueSort.value = []
+    nonValueSort.value = []
+
   }
-
-
-
 }
 
 
 const shopId = JSON.parse(getLocalstorage("pinia-shopStore")).shopId
 const productId = ref()
 
-onMounted(() =>{
-
-
-  getProductSort(shopId).then(res=>{
-    if (res.code === 200){
+onMounted(() => {
+  getProductSort(shopId).then(res => {
+    if (res.code === 200) {
       state.sortList = res.data
     }
   })
 
   const route = useRoute();
-  productId.value= route.query.productId;
+  //接收路由跳转的参数
+  productId.value = route.query.productId;
   //获取修改的菜单
-  if (productId.value !== undefined && productId.value.length>0){
-    getProductDetails(productId.value).then(res =>{
-      if (res.code === 200){
+  if (productId.value !== undefined && productId.value.length > 0) {
+    getProductDetails(productId.value).then(res => {
+      if (res.code === 200) {
         state.form = res.data
 
+        if (res.data.nonValueList != null) {
+          nonValueSort.value = res.data.nonValueList.map(m => m.sort)
+        }
+        if (res.data.valueList != null) {
+          valueSort.value = res.data.valueList.map(m => m.sort)
+        }
+        state.sortList.id = res.data.sort
+        //触发图片用来显示
+        state.form.urlList = res.data.picture
       }
     })
   }
 
 
-
 })
-
-
-
 
 
 </script>

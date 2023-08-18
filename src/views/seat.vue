@@ -16,31 +16,65 @@
           <el-tag style=" float: right;" :type="item.serving === 1 ? 'success' : 'danger'">{{ item.serving === 1 ? '是' : "否"}}</el-tag>
         </div>
         <div>
-          <el-button>订单详情</el-button>
+          <el-badge value="new" class="item" :hidden="hidden">
+            <el-button @click="orderDetail">订单详情</el-button>
+          </el-badge>
         </div>
       </el-card>
     </el-col>
 
   </el-row>
-
+  <el-dialog v-model="dialogVisible" title="Tips" :width="dialogWidth" :before-close="handleClose">
+    <div class="card-container" style="display: flex; justify-content: space-between; gap: 10px">
+      <el-card v-for="item in 3" :key="item" class="box-card" ref="cardRefs">
+        <div v-for="o in 14" :key="o" class="text item">{{ item }}</div>
+      </el-card>
+    </div>
+  </el-dialog>
 
 </template>
 
 <script setup>
-import {onMounted, reactive} from "vue";
+import {nextTick, onMounted, reactive, ref} from "vue";
 import {getTable} from "../api/linmour-restaurant/table";
+import {getOrderInfo} from "../api/linmour-order";
+const dialogVisible = ref(false);
+const dialogWidth = ref('30%');
+
+const hidden = ref(true)
 
 const state =reactive({
-  form:{}
+  form:{},
+  orderList:[]
 })
+//后台推送订单
+const getSocketData = (res) => {
 
-onMounted(() =>{
-  getTable(1).then(res =>{
-    if (res.code === 200){
+
+}
+const orderDetail = () =>{
+  getOrderInfo().then(res =>{
+     state.orderList = res.data
+    console.log(state.orderList)
+  })
+  // dialogWidth.value = res.data.length *
+  dialogVisible.value = true
+}
+onMounted(async () => {
+  window.addEventListener('onmessageWS', getSocketData)
+
+  getTable(1).then(res => {
+    if (res.code === 200) {
       state.form = res.data
     }
   })
 })
+
+const handleClose = () => {
+  dialogVisible.value = false;
+};
+
+
 </script>
 
 <style>
@@ -61,4 +95,9 @@ onMounted(() =>{
 .box-card {
   width: 480px;
 }
+.item {
+  margin-top: 10px;
+  margin-right: 40px;
+}
+
 </style>

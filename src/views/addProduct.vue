@@ -171,16 +171,13 @@
 </template>
 
 <script lang="ts" setup>
-import {getCurrentInstance, nextTick, onMounted, reactive, ref, UnwrapNestedRefs} from 'vue'
+import {nextTick, onMounted, reactive, ref} from 'vue'
 import {getLocalstorage} from "@/utils/localStorage";
 
 import {ElInput} from "element-plus";
 import {addProduct, getProductDetails, getProductSort, updateProduct} from "@/api/linmour-product/product";
 import UpoloadProduct from '@/component/upoloadProduct.vue'
-import router from "@/router";
 import {useRoute} from "vue-router";
-import {log} from "echarts/types/src/util/log";
-import {Logger} from "sass";
 import {error} from "@/utils/tips";
 
 const a = ref(true)
@@ -332,7 +329,6 @@ const valueHandleInput = (type) => {
     valueSortInputVisible.value = false
   } else {
     if (valueSpecInput.value && valueSpecInput.value.length != 0) {
-      console.log(state.form.valueList[VALUEINDEX.value])
       state.form.valueList[VALUEINDEX.value].spec.push(valueSpecInput.value)
       valueSpec.value = state.form.valueList[VALUEINDEX.value].spec
     }
@@ -372,7 +368,7 @@ const isUpload = ref(false)
 const save = () => {
   isUpload.value = true;
 }
-//子组件触发
+//上图片子组件触发
 const handleUploadComplete = (urlList) => {
   console.log(urlList)
   isUpload.value = false; // 在事件处理函数中将 param 设置为 false
@@ -393,7 +389,7 @@ const handleUploadComplete = (urlList) => {
     }
   })
   if (flag) {
-        //修改
+    //修改
     if (productId.value !== undefined && productId.value.length > 0) {
       updateProduct(state.form).then(res => {
         console.log(state.form)
@@ -403,7 +399,7 @@ const handleUploadComplete = (urlList) => {
       })
       //新增
     } else {
-      state.form.sortId =  state.sortList.id
+      state.form.sortId = state.sortList.id
       addProduct(state.form).then(res => {
         if (res.code === 200) {
 
@@ -416,16 +412,16 @@ const handleUploadComplete = (urlList) => {
     state.sortList.id = ''
     valueSort.value = []
     nonValueSort.value = []
-
+    state.form.urlList
   }
 }
 
 
-const shopId = JSON.parse(getLocalstorage("pinia-shopStore")).shopId
+const shopId = JSON.parse(getLocalstorage("ShopId")).shopId
 const productId = ref()
 
 onMounted(() => {
-  getProductSort(shopId).then(res => {
+  getProductSort().then(res => {
     if (res.code === 200) {
       state.sortList = res.data
     }
@@ -439,6 +435,13 @@ onMounted(() => {
     getProductDetails(productId.value).then(res => {
       if (res.code === 200) {
         state.form = res.data
+        if (res.data.nonValueList === null) {
+          state.form.nonValueList = []
+        }
+        if (res.data.valueList === null) {
+          state.form.valueList = []
+        }
+
 
         if (res.data.nonValueList != null) {
           nonValueSort.value = res.data.nonValueList.map(m => m.sort)

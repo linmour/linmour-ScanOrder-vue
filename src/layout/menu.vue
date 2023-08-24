@@ -55,7 +55,6 @@ const  menus = ref()
 onMounted(() =>{
   menus.value = JSON.parse(getLocalstorage("Menus"))
   num.value = menu.getSort()
-  // num.value = getLocalstorage("sort")
 
 })
 

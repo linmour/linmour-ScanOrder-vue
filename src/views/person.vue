@@ -9,7 +9,7 @@
               <div style="text-align: center">
                 <el-upload
                     class="avatar-uploader"
-                    action="http://127.0.0.1:5173/api/account/merchant/upload_picture"
+                    action="http://127.0.0.1:5173/api/account/merchant/upload_avatar"
                       :show-file-list="false"
                     :on-success="handleAvatarSuccess"
                     :before-upload="beforeUpload"

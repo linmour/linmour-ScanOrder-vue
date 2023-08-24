@@ -146,18 +146,11 @@ import {error} from "@/utils/tips";
 import router from "@/router";
 
 
-const sizeBlur = () => {
-  console.log("***********************")
-}
-const sizeChange = () => {
-  console.log("---------------------")
-}
 const dialogFormVisible = ref(false)
 const addProduct = () => {
   router.push('/addProduct')
 }
 
-const shopId = JSON.parse(getLocalstorage("pinia-shopStore")).shopId
 const activeName = ref(1)
 const ValueActiveName = ref('')
 const nonValueActiveName = ref('')
@@ -170,7 +163,7 @@ const ValuehandleClick = (tab: TabsPaneContext, event: Event) => {
 }
 const nonValuehandleClick = (tab: TabsPaneContext, event: Event) => {
   nonValueActiveName.value = tab.props.name
-  // console.log(tab,event)
+
 }
 const state = reactive({
   tableData: [],
@@ -239,7 +232,7 @@ const edit = () => {
 
 
 onMounted(() => {
-  getProductSort(shopId).then(res => {
+  getProductSort().then(res => {
     if (res.code === 200) {
       state.sortList = res.data
       console.log(state.sortList)

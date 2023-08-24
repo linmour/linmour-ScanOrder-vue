@@ -6,8 +6,8 @@ export function getProductList(params) {
     });
 }
 
-export function getProductSort(shopId) {
-    return request.get('/product/sort/getProductSort/'+ shopId);
+export function getProductSort() {
+    return request.get('/product/sort/getProductSort');
 }
 
 export function changeProduct(product) {

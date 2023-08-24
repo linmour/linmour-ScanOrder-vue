@@ -19,7 +19,7 @@ import {defineEmits, onMounted, reactive, ref, watch} from "vue";
 import {getProductList} from "../api/linmour-product/product";
 import {getLocalstorage} from "@/utils/localStorage";
 
-const shopId = JSON.parse(getLocalstorage("pinia-shopStore")).shopId
+const shopId = ref()
 const total = ref(0)
 const state = reactive({
   queryParams: {
@@ -30,16 +30,19 @@ const state = reactive({
 const emits = defineEmits(["update:params"]);
 const load = () => {
   // state.queryParams = props.param
+  //查询商店
   if (props.type === 1){
     shopList(state.queryParams).then(res =>{
       if (res.code === 200){
         state.tableData = res.data.list
         total.value = res.data.total
         emits('update:params', state.tableData);
+
       }
     })
-
+  //查询菜品
   }else if (props.type === 2){
+    shopId.value = JSON.parse(getLocalstorage("ShopId")).shopId
     state.queryParams.shopId = shopId
     getProductList(state.queryParams).then(res =>{
       if (res.code === 200){

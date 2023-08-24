@@ -10,6 +10,7 @@
       :http-request="uploadFile"
       limit="3"
       ref="upload"
+
   >
     <el-tooltip
         :auto-close="2000"
@@ -33,6 +34,7 @@ import {Plus} from '@element-plus/icons-vue'
 
 export default {
   components: {Plus},
+  //接收传过来的参数
   props: {
     param: {
       type: Boolean,
@@ -62,7 +64,7 @@ export default {
         // 在这里处理 isUpload 变化的逻辑
         this.formDate = new FormData()
         this.$refs.upload.submit();
-        this.formDate.append('shopId', JSON.parse(getLocalstorage("pinia-shopStore")).shopId);
+        this.formDate.append('shopId', JSON.parse(getLocalstorage("ShopId")).shopId);
         // console.log(this.formDate.getAll("file"))
         axios.post("http://127.0.0.1:5173/api/product/product/upload_product", this.formDate).then(res => {
           this.data.urlList.push(...(res.data.toString().split(',')).map(function (url) {
@@ -82,6 +84,7 @@ export default {
         })
       }
     },
+    //监听到url改变，返回给调用者
     imgUrl(newValue, oldValue){
       this.data.urlList = (newValue.toString().split(',')).map(function (url) {
         return {url: url};

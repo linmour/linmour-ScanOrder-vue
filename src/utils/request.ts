@@ -2,6 +2,7 @@ import axios from 'axios'
 import { success,error } from '@/utils/tips'
 import {getLocalstorage, removeLocalstorage} from "@/utils/localStorage";
 import router from "@/router";
+import {Logger} from "sass";
 
 // 配置请求的跟路径
 axios.defaults.baseURL = 'api'
@@ -15,6 +16,10 @@ axios.interceptors.request.use(function (config) {
   config.timeout = 5000;
   // 往header头自动添加token
   const token = getLocalstorage("Token")
+  if (getLocalstorage("ShopId") !== ''){
+    const shopId = JSON.parse(getLocalstorage("ShopId")).shopId
+    config.headers["ShopId"] =shopId
+  }
   if(token){
       config.headers["Token"] = token
 
@@ -28,7 +33,7 @@ axios.interceptors.request.use(function (config) {
 
 // 添加响应拦截器
 axios.interceptors.response.use(function (response) {
-  
+
   if(response.data.code === 200){
     success(response.data.msg)
   }else{
@@ -42,11 +47,11 @@ axios.interceptors.response.use(function (response) {
   // 这个就直接是对返回的数据进行操作了
   return response.data;
 }, function (err) {
-  
+
   // 对响应错误做点什么
 
   error("请求错误")
 
   return Promise.reject(err);
-})  
+})
 export default axios

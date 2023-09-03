@@ -46,7 +46,7 @@
       </el-table-column>
       <el-table-column label="操作" width="230px">
         <template #default="scope">
-          <el-button type="success" @click="details(scope.row)">菜品详情</el-button>
+          <el-button type="success" @click="detail(scope.row)">菜品详情</el-button>
         </template>
       </el-table-column>
     </el-table>
@@ -86,21 +86,31 @@
           <div v-for="item in productDetails.valueList" :key="item.sort">
             <el-tab-pane :label="item.sort" :name="item.sort">
 
-                <el-tag
-                    v-for="(it,index) in item.spec"
-                    :key="item.sort"
-                    class="mx-1"
-                    effect="dark"
-                >
-                  {{ it }}     ￥ {{ item.price[index]}}
-                </el-tag>
+              <el-tag
+                  v-for="(it,index) in item.spec"
+                  :key="item.sort"
+                  class="mx-1"
+                  effect="dark"
+              >
+                {{ it }} ￥ {{ item.price[index] }}
+              </el-tag>
 
 
             </el-tab-pane>
           </div>
         </el-tabs>
       </el-form-item>
+      <el-form-item label="所需材料">
+        <el-tag
+            v-for="item in productDetails.inventoryList"
+            :key="item.name"
+            class="mx-1"
+            effect="dark"
+        >
+          {{ item.name }} {{ item.numAndUnit }}
+        </el-tag>
 
+      </el-form-item>
 
 
       <el-form-item>
@@ -140,7 +150,6 @@
 import {onMounted, reactive, ref, watch} from 'vue'
 import type {TabsPaneContext} from 'element-plus'
 import Page from "../component/paging.vue";
-import {getLocalstorage} from "@/utils/localStorage";
 import {changeProduct, getProductDetails, getProductSort} from "@/api/linmour-product/product";
 import {error} from "@/utils/tips";
 import router from "@/router";
@@ -154,6 +163,7 @@ const addProduct = () => {
 const activeName = ref(1)
 const ValueActiveName = ref('')
 const nonValueActiveName = ref('')
+const inventoryActiveName = ref('')
 const handleClick = (tab: TabsPaneContext, event: Event) => {
   state.queryParams.sortId = tab.props.name
   // console.log(tab, event)
@@ -163,8 +173,9 @@ const ValuehandleClick = (tab: TabsPaneContext, event: Event) => {
 }
 const nonValuehandleClick = (tab: TabsPaneContext, event: Event) => {
   nonValueActiveName.value = tab.props.name
-
 }
+
+
 const state = reactive({
   tableData: [],
   queryParams: {
@@ -178,7 +189,7 @@ const state = reactive({
 })
 
 const changeStatus = (row) => {
-  changeProduct(row).then(res => {
+  changeProduct(row.id,row.status).then(res => {
     if (res.code !== 200) {
       error("修改失败")
     }
@@ -204,23 +215,26 @@ const drawerFormVisible = ref(false)
 
 const productDetails = reactive({
   nonValueList: [],
-  valueList: []
+  valueList: [],
+  inventoryList: []
 
 });
 
-const details = (row) => {
+const detail = (row) => {
   state.form = row
   getProductDetails(row.id).then(res => {
     if (res.code === 200) {
+      res.data = res.data[0]
+      console.log(res.data)
       state.productId = res.data.id;
       productDetails.nonValueList = res.data.nonValueList;
       productDetails.valueList = res.data.valueList
+      productDetails.inventoryList = res.data.inventoryList
     }
   })
   drawerFormVisible.value = true
 }
 const edit = () => {
-
   const productId = String(state.productId)
   router.push({
     path: '/addProduct',

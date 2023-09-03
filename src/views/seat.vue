@@ -148,6 +148,7 @@ const handleCheckboxClick = (event) =>{
 function orderNum() {
   if (getLocalstorage('OrderList') !== '') {
     const a = JSON.parse(getLocalstorage('OrderList'))
+    console.log(a)
     state.form.forEach(m => {
       m.orderNum = 0
       a.forEach(n => {
@@ -197,11 +198,12 @@ const confirmEvent = (index, tableId) => {
 const getSocketData = (res) => {
   let flag = true
   res = JSON.parse(res.detail.data)
-
+  console.log(res)
   if (res === 1) {
     console.log('检测连接')
   } else if (res.msg === 'order') {
     //同一桌的放在一起
+    console.log(res)
     res.data.tableId = res.data.orderInfoDtos[0].tableId
     if (getLocalstorage('OrderList') === '') {
       console.log('没有桌子')

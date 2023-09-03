@@ -10,14 +10,15 @@ export function getProductSort() {
     return request.get('/product/sort/getProductSort');
 }
 
-export function changeProduct(product) {
+export function changeProduct(id,status) {
     return request.post('/product/product/changeProduct',{
-        product
+        id,
+        status
     });
 }
 
 export function getProductDetails(id) {
-    return request.get('/product/product/getProductDetails/'+id);
+    return request.get('/product/product/getProductDetails?productIds=0'+'&productIds='+id);
 }
 
 export function addProduct(product) {

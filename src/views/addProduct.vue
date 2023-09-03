@@ -90,8 +90,34 @@
                     + New Tag
                   </el-button>
                 </el-form-item>
-
-
+                <el-form-item label="所需材料">
+                  <el-tag
+                      v-for="(tag,index) in inventoryName"
+                      :key="tag"
+                      class="mx-1"
+                      closable
+                      :disable-transitions="false"
+                      @close="inventoryHandleClose(tag,index)"
+                  >
+                    {{ tag }}
+                    <el-input v-model="inventoryNumAndUnit[index]" style="width: 82px" placeholder="数量/单位"
+                              @keyup.enter="inventoryNumHandleInput(index)"
+                              @blur="inventoryNumHandleInput(index)"
+                    />
+                  </el-tag>
+                  <el-input
+                      v-if="inventoryInputVisible"
+                      ref="inventoryInputRef"
+                      v-model="inventoryInput"
+                      class="ml-1 w-20"
+                      size="small"
+                      @keyup.enter="InventoryNameHandleInput"
+                      @blur="InventoryNameHandleInput"
+                  />
+                  <el-button v-else class="button-new-tag ml-1" size="small" @click="inventoryShowInput">
+                    + New Tag
+                  </el-button>
+                </el-form-item>
                 <el-form-item style="margin-left: 150px">
                   <el-button @click="save">保存</el-button>
                 </el-form-item>
@@ -124,6 +150,7 @@
                     @keyup.enter="PriceHandleInput(index)"
                     @blur="PriceHandleInput(index)"
           />
+
         </el-tag>
         <el-input
             v-if="valueSpecInputVisible"
@@ -183,6 +210,9 @@ import {error} from "@/utils/tips";
 const a = ref(true)
 
 
+
+
+
 const nonValueEcho = (index, type) => {
   dialogTableVisible.value = type
   const a = state.form.nonValueList[index].spec
@@ -204,15 +234,18 @@ const valueEcho = (index, type) => {
 //输入的值
 const valueSortInput = ref('')
 const valueSpecInput = ref('')
+const inventoryInput = ref('')
 const priceInput = ref('')
 const nonValueSortInput = ref('')
 const nonValueSpecInput = ref('')
 const valueSortInputVisible = ref(false)
 const valueSpecInputVisible = ref(false)
+const inventoryInputVisible = ref(false)
 const nonValueSpecInputVisible = ref(false)
 const nonValueSortInputVisible = ref(false)
 const valueSortInputRef = ref<InstanceType<typeof ElInput>>()
 const valueSpecInputRef = ref<InstanceType<typeof ElInput>>()
+const inventoryInputRef = ref<InstanceType<typeof ElInput>>()
 const nonValueSpecInputRef = ref<InstanceType<typeof ElInput>>()
 const nonValueSortInputRef = ref<InstanceType<typeof ElInput>>()
 
@@ -223,19 +256,22 @@ const dialogClose = () => {
   valuePrice.value = []
 
 }
-
+//删除标签
 const valueHandleClose = (tag: string, bool, index) => {
+  //spec内层
   if (bool) {
     state.form.valueList[VALUEINDEX.value].spec.splice(state.form.valueList[VALUEINDEX.value].spec.indexOf(tag), 1)
     state.form.valueList[VALUEINDEX.value].price.splice(state.form.valueList[VALUEINDEX.value].price.indexOf(tag), 1)
-
   } else {
     valueSort.value.splice(valueSort.value.indexOf(tag), 1)
     state.form.valueList.splice(index, 1)
-
   }
-
 }
+const inventoryHandleClose = (tag: string, index) => {
+  state.form.inventoryList[index].numAndUnit.splice(state.form.inventoryList[index].numAndUnit.indexOf(tag), 1)
+  state.form.inventoryList[index].name.splice(state.form.inventoryList[index].name.indexOf(tag), 1)
+}
+
 //bool表示内外层`
 const nonValueHandleClose = (tag: string, bool, index) => {
   //spec内层
@@ -270,8 +306,6 @@ const valueShowInput = (bool) => {
     nextTick(() => {
       valueSpecInputRef.value!.input!.focus()
     })
-
-
   } else {
     valueSortInputVisible.value = true
     nextTick(() => {
@@ -280,19 +314,20 @@ const valueShowInput = (bool) => {
   }
 
 }
-const PriceHandleInput = (index) => {
-  if (valuePrice.value[index] && valuePrice.value[index] != undefined) {
-
-    state.form.valueList[VALUEINDEX.value].price[index] = (valuePrice.value[index])
-    valuePrice.value = state.form.valueList[VALUEINDEX.value].price
-  }
-  nonValueSpecInputVisible.value = false
+const inventoryShowInput = () => {
+  console.log('1111111111')
+  inventoryInputVisible.value = true
+    nextTick(() => {
+      inventoryInputRef.value!.input!.focus()
+    })
 }
+
 
 
 //外层的索引
 const NONVALUEINDEX = ref(0)
 const VALUEINDEX = ref(0)
+const INVENTORYINDEX = ref(0)
 //输入的值
 const nonValueHandleInput = (type) => {
   //不等于空说明是第一层，也就是分类sort
@@ -315,7 +350,6 @@ const nonValueHandleInput = (type) => {
     nonValueSpecInputVisible.value = false
   }
 }
-
 const valueHandleInput = (type) => {
 //不等于空说明是第一层，也就是分类sort
   if (type != null) {
@@ -340,13 +374,38 @@ const valueHandleInput = (type) => {
   //去掉数组最后一个，要不然会有bug
   // valuePrice.value.pop()
 }
-
+const PriceHandleInput = (index) => {
+  if (valuePrice.value[index] && valuePrice.value[index] != undefined) {
+    state.form.valueList[VALUEINDEX.value].price[index] = (valuePrice.value[index])
+    valuePrice.value = state.form.valueList[VALUEINDEX.value].price
+  }
+  nonValueSpecInputVisible.value = false
+}
+const inventoryNumHandleInput = (index) => {
+  if (inventoryNumAndUnit.value[index] && inventoryNumAndUnit.value[index] != undefined) {
+    state.form.inventoryList[INVENTORYINDEX.value].numAndUnit = (inventoryNumAndUnit.value[index])
+    inventoryNumAndUnit.value = state.form.inventoryList.map(m => m.numAndUnit)
+  }
+  nonValueSpecInputVisible.value = false
+}
+const InventoryNameHandleInput = () => {
+  if (inventoryInput.value && inventoryInput.value.length != 0) {
+    state.form.inventoryList.push({'name': inventoryInput.value, 'numAndUnit':""})
+    inventoryName.value.push(inventoryInput.value)
+    INVENTORYINDEX.value = state.form.inventoryList.length - 1 < 0 ? 0 : state.form.inventoryList.length - 1;
+  }
+  inventoryInput.value = ''
+  inventoryInputVisible.value = false
+  console.log(state.form.inventoryList)
+}
 
 const nonValueSpec = ref([])
 const nonValueSort = ref([])
 const valueSpec = ref([])
 const valueSort = ref([])
 const valuePrice = ref([])
+const inventoryName = ref([])
+const inventoryNumAndUnit = ref([])
 
 const state = reactive({
   form: {
@@ -357,6 +416,8 @@ const state = reactive({
     //]
     nonValueList: [],
     valueList: [],
+    //{"name":"","numAndUnit":1}
+    inventoryList:[],
     sortId: Number,
     shopId: Number,
     urlList: []
@@ -365,6 +426,7 @@ const state = reactive({
 })
 const dialogTableVisible = ref('')
 const isUpload = ref(false)
+//这个逻辑是，触发子组件上传图片，上传成功后触发表单提交
 const save = () => {
   isUpload.value = true;
 }
@@ -412,6 +474,8 @@ const handleUploadComplete = (urlList) => {
     state.sortList.id = ''
     valueSort.value = []
     nonValueSort.value = []
+    inventoryName.value =[]
+    inventoryNumAndUnit.value = []
     state.form.urlList
   }
 }
@@ -430,10 +494,12 @@ onMounted(() => {
   const route = useRoute();
   //接收路由跳转的参数
   productId.value = route.query.productId;
+  console.log(productId.value)
   //获取修改的菜单
   if (productId.value !== undefined && productId.value.length > 0) {
     getProductDetails(productId.value).then(res => {
       if (res.code === 200) {
+        res.data = res.data[0]
         state.form = res.data
         if (res.data.nonValueList === null) {
           state.form.nonValueList = []
@@ -441,7 +507,9 @@ onMounted(() => {
         if (res.data.valueList === null) {
           state.form.valueList = []
         }
-
+        if (res.data.inventoryList === null) {
+          state.form.inventoryList = []
+        }
 
         if (res.data.nonValueList != null) {
           nonValueSort.value = res.data.nonValueList.map(m => m.sort)
@@ -449,6 +517,11 @@ onMounted(() => {
         if (res.data.valueList != null) {
           valueSort.value = res.data.valueList.map(m => m.sort)
         }
+        if (res.data.inventoryList != null) {
+          inventoryName.value = res.data.inventoryList.map(m => m.name)
+          inventoryNumAndUnit.value = res.data.inventoryList.map(m => m.numAndUnit)
+        }
+
         state.sortList.id = res.data.sort
         //触发图片用来显示
         state.form.urlList = res.data.picture

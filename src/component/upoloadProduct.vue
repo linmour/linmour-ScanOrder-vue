@@ -73,8 +73,6 @@ export default {
             return obj.url !== "";
           }));
           this.data.urlList
-          console.log("====")
-          console.log(this.data.urlList)
 
         }).catch(res => {
           console.log(res)
@@ -89,8 +87,6 @@ export default {
       this.data.urlList = (newValue.toString().split(',')).map(function (url) {
         return {url: url};
       });
-      console.log("aaaa")
-      console.log(this.data.urlList)
     }
 
   },

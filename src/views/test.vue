@@ -17,7 +17,7 @@
 
 </template>
 <script>
-import {uploadImage} from "../api/linmour-account/upload";
+import {uploadImage} from "../api/linmour-system/upload";
 
 export default {
   data() {

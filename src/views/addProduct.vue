@@ -6,8 +6,10 @@
           <el-card style="width: 60%;height: 800px; margin: 80px auto">
             <el-form style="width: 70%; margin: 60px auto" label-width="80px">
               <div style="text-align: center">
-                <UpoloadProduct :param="isUpload" :imgUrl="state.form.urlList" @uploadComplete="handleUploadComplete"/>
+
+                <UpoloadImgs :param="isUpload" :imgUrl="state.form.urlList" @uploadComplete="handleUploadComplete" :type="UPLOAD_TYPE.PRODUCT"/>
               </div>
+
               <div style="margin: 100px; width: 800px; ">
                 <el-form-item label="菜名">
                   <el-input class="width70" v-model="state.form.name"></el-input>
@@ -203,14 +205,13 @@ import {getLocalstorage} from "@/utils/localStorage";
 
 import {ElInput} from "element-plus";
 import {addProduct, getProductDetails, getProductSort, updateProduct} from "@/api/linmour-product/product";
-import UpoloadProduct from '@/component/upoloadProduct.vue'
 import {useRoute} from "vue-router";
 import {error} from "@/utils/tips";
+import UpoloadImgs from "@/component/upoloadImgs.vue";
+import { UPLOAD_TYPE } from '@/utils/enums'
+
 
 const a = ref(true)
-
-
-
 
 
 const nonValueEcho = (index, type) => {
@@ -315,13 +316,11 @@ const valueShowInput = (bool) => {
 
 }
 const inventoryShowInput = () => {
-  console.log('1111111111')
   inventoryInputVisible.value = true
-    nextTick(() => {
-      inventoryInputRef.value!.input!.focus()
-    })
+  nextTick(() => {
+    inventoryInputRef.value!.input!.focus()
+  })
 }
-
 
 
 //外层的索引
@@ -390,7 +389,7 @@ const inventoryNumHandleInput = (index) => {
 }
 const InventoryNameHandleInput = () => {
   if (inventoryInput.value && inventoryInput.value.length != 0) {
-    state.form.inventoryList.push({'name': inventoryInput.value, 'numAndUnit':""})
+    state.form.inventoryList.push({'name': inventoryInput.value, 'numAndUnit': ""})
     inventoryName.value.push(inventoryInput.value)
     INVENTORYINDEX.value = state.form.inventoryList.length - 1 < 0 ? 0 : state.form.inventoryList.length - 1;
   }
@@ -417,7 +416,7 @@ const state = reactive({
     nonValueList: [],
     valueList: [],
     //{"name":"","numAndUnit":1}
-    inventoryList:[],
+    inventoryList: [],
     sortId: Number,
     shopId: Number,
     urlList: []
@@ -432,7 +431,7 @@ const save = () => {
 }
 //上图片子组件触发
 const handleUploadComplete = (urlList) => {
-  console.log(urlList)
+
   isUpload.value = false; // 在事件处理函数中将 param 设置为 false
   state.form.shopId = shopId
   state.form.urlList = urlList
@@ -474,7 +473,7 @@ const handleUploadComplete = (urlList) => {
     state.sortList.id = ''
     valueSort.value = []
     nonValueSort.value = []
-    inventoryName.value =[]
+    inventoryName.value = []
     inventoryNumAndUnit.value = []
     state.form.urlList
   }

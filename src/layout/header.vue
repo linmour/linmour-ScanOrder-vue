@@ -33,7 +33,7 @@
 </template>
 
 <script setup>
-import {logout} from "../api/linmour-account/merchant";
+import {logout} from "../api/linmour-system/merchant";
 import {getLocalstorage, removeLocalstorage} from "../utils/localStorage";
 import {useRouter} from "vue-router/dist/vue-router";
 import { useIsCollapseStore } from '../stores'

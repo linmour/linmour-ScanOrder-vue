@@ -1,7 +1,7 @@
 import request from "@/utils/request";
 
-export function getProductList(params) {
-    return request.get('/product/product/getProductList',{
+export function getProductPage(params) {
+    return request.get('/product/product/getProductPage',{
         params
     });
 }

@@ -38,7 +38,7 @@
         <el-table-column prop="name" label="名字" width="180"/>
         <el-table-column prop="position" label="所在城市"/>
 
-
+        <el-table-column  prop="businessHours" label="运营时间" />
         <el-table-column
             prop="businessStatus"
             label="运营状态"
@@ -76,6 +76,9 @@
             <el-option :key="0" label="停用" :value="0"/>
           </el-select>
         </el-form-item>
+        <el-form-item  prop="businessHours" label="运营时间">
+          <el-time-picker v-model="state.form.businessHours" autocomplete="off" value-format="HH:mm:ss"/>
+        </el-form-item>
       </el-form>
       <template #footer>
       <span class="dialog-footer">
@@ -84,7 +87,12 @@
       </template>
     </el-dialog>
 
-    <page @update:params="handleParams" :type="1" :param="state.queryParams"/>
+    <page
+        :total="total"
+        v-model:page="state.queryParams.pageNo"
+        v-model:limit="state.queryParams.pageSize"
+        @pagination="getList"
+    />
   </div>
 </template>
 
@@ -97,6 +105,7 @@ import {useRouter} from 'vue-router'
 
 import {useMenuStore, useShopStore} from "../stores";
 import Page from "../component/paging.vue";
+import {shopList} from "../api/linmour-system/shop";
 
 
 const MenuStore = useMenuStore()
@@ -113,42 +122,37 @@ const state = reactive({
   form: {}
 })
 
-const handleParams = (newParams) => {
-
-  state.tableData = newParams;
+const total = ref(0)
+const getList =  async () =>{
+  const res = await shopList(state.queryParams)
+    if (res.code === 200) {
+      state.tableData = res.data.list
+      total.value = res.data.total
+  }
 }
-//监听变化
-watch(state.tableData, (newVal) => {
-
-  handleParams(newVal);
-}, {deep: true});
-
 
 const dialogFormVisible = ref(false)
 const reset = () => {
   state.queryParams.name = undefined
 }
 
-
 const entire = (row) => {
-
   ShopStore.setShopId(row.id)
   MenuStore.setSort('2')
   router.push('/overview')
-
-
 }
 
 const edit = (row) => {
   state.form.name = row.name
   state.form.intro = row.intro
   state.form.status = row.status
+  state.form.businessHours = row.businessHours
   dialogFormVisible.value = true
 }
 
 
 onMounted(() => {
-  // load()
+  getList()
 
 })
 

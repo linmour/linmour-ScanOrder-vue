@@ -13,30 +13,38 @@
         <el-button @click="addProduct">添加菜品</el-button>
       </el-main>
     </el-container>
-
-
     <el-table :data="state.tableData" border style="width: 100%">
       <el-table-column prop="id" label="序号" width="180"/>
       <el-table-column prop="name" label="名字" width="180"/>
       <el-table-column prop="intro" label="简介"/>
       <el-table-column prop="intro" label="简介"/>
       <el-table-column prop="picture" label="图片">
-        <template #default="scope">
+        <template #default="{ row }">
           <el-image
-              v-for="(item,index) in scope.row.picture" :key="index"
-              :src="item" style="width: 150px; height: 100px; cursor: pointer;padding: 2px"
-              :preview-src-list="scope.row.picture"
-
+              style="width: 100px; height: 100px"
+              :src="row.picture[0]"
+              :zoom-rate="1.2"
+              :preview-src-list="row.picture"
+              :initial-index="4"
+              fit="cover"
               preview-teleported="true"
           />
-          <!--              这个不加的话，图片样式会被覆盖-->
         </template>
       </el-table-column>
-      <el-table-column label="上架状态">
+      <el-table-column prop="status" label="上架状态">
         <template #default="scope">
+<!--
+              :active-value="1"
+              :inactive-value="0"
+              如果要传数字前面要加：
+              如果要字符串就不加
+              但是一定要加“”
+        -->
           <el-switch
               v-model="scope.row.status"
               inline-prompt
+              :active-value="1"
+              :inactive-value="0"
               active-text="是"
               inactive-text="否"
               @change="changeStatus(scope.row)"
@@ -61,12 +69,8 @@
       <el-form-item prop="intro" label="简介">
         <el-input :readonly="true" v-model="state.form.intro" autocomplete="off"/>
       </el-form-item>
-      <el-form-item prop="intro" label="简介">
-        <el-input :readonly="true" v-model="state.form.intro" autocomplete="off"/>
-      </el-form-item>
-
       <el-form-item label="普通选项">
-        <el-tabs v-model="nonValueActiveName" @tab-click="nonValuehandleClick" type="card">
+        <el-tabs v-model="nonValueActiveName" @tab-click="nonValueHandleClick" type="card">
           <div v-for="item in productDetails.nonValueList" :key="item.sort">
             <el-tab-pane :label="item.sort" :name="item.sort">
               <el-tag
@@ -82,7 +86,7 @@
         </el-tabs>
       </el-form-item>
       <el-form-item label="价值选项">
-        <el-tabs v-model="ValueActiveName" @tab-click="ValuehandleClick" type="card">
+        <el-tabs v-model="ValueActiveName" @tab-click="ValueHandleClick" type="card">
           <div v-for="item in productDetails.valueList" :key="item.sort">
             <el-tab-pane :label="item.sort" :name="item.sort">
 
@@ -94,8 +98,6 @@
               >
                 {{ it }} ￥ {{ item.price[index] }}
               </el-tag>
-
-
             </el-tab-pane>
           </div>
         </el-tabs>
@@ -119,7 +121,12 @@
     </el-form>
   </el-drawer>
 
-  <page @update:params="handleParams" :type="2" :param="state.queryParams"/>
+  <page
+      :total="total"
+      v-model:page="state.queryParams.pageNo"
+      v-model:limit="state.queryParams.pageSize"
+      @pagination="getList"
+  />
 
 
   <el-dialog v-model="dialogFormVisible" title="信息" width="40%">
@@ -150,9 +157,15 @@
 import {onMounted, reactive, ref, watch} from 'vue'
 import type {TabsPaneContext} from 'element-plus'
 import Page from "../component/paging.vue";
-import {changeProduct, getProductDetails, getProductSort} from "@/api/linmour-product/product";
+import {
+  changeProduct,
+  getProductDetails,
+  getProductPage,
+  getProductSort
+} from "@/api/linmour-product/product";
 import {error} from "@/utils/tips";
 import router from "@/router";
+import {getLocalstorage} from "@/utils/localStorage";
 
 
 const dialogFormVisible = ref(false)
@@ -163,19 +176,36 @@ const addProduct = () => {
 const activeName = ref(1)
 const ValueActiveName = ref('')
 const nonValueActiveName = ref('')
-const inventoryActiveName = ref('')
 const handleClick = (tab: TabsPaneContext, event: Event) => {
   state.queryParams.sortId = tab.props.name
+  getList()
   // console.log(tab, event)
 }
-const ValuehandleClick = (tab: TabsPaneContext, event: Event) => {
+const ValueHandleClick = (tab: TabsPaneContext, event: Event) => {
   ValueActiveName.value = tab.props.name
 }
-const nonValuehandleClick = (tab: TabsPaneContext, event: Event) => {
+const nonValueHandleClick = (tab: TabsPaneContext, event: Event) => {
   nonValueActiveName.value = tab.props.name
 }
+const shopId = ref()
+const total = ref(0)
+const getList = async () => {
+
+  const res = await getProductPage(state.queryParams)
+  shopId.value = JSON.parse(getLocalstorage("ShopId")).shopId
+  state.queryParams.shopId = shopId.value
+  if (res.code === 200) {
+    state.tableData =  res.data.list
+    total.value = res.data.total
+  }
+  state.tableData.forEach(item => {
+    const pictureArray = item.picture.split(",");
+    item.picture = pictureArray;
+  })
 
 
+
+}
 const state = reactive({
   tableData: [],
   queryParams: {
@@ -188,27 +218,13 @@ const state = reactive({
   productId: Number
 })
 
-const changeStatus = (row) => {
-  changeProduct(row.id,row.status).then(res => {
+const changeStatus = async (row) => {
+  console.log(row.status)
+  const res = await changeProduct(row.id, row.status)
     if (res.code !== 200) {
       error("修改失败")
     }
-  })
 }
-
-//分页组件触发
-const handleParams = (newParams) => {
-  state.tableData = newParams;
-  state.tableData.forEach(item => {
-    const pictureArray = item.picture.split(",");
-    item.picture = pictureArray;
-  })
-  console.log(state.tableData)
-
-}
-watch(state.tableData, (newVal) => {
-  handleParams(newVal);
-}, {deep: true});
 
 
 const drawerFormVisible = ref(false)
@@ -225,7 +241,6 @@ const detail = (row) => {
   getProductDetails(row.id).then(res => {
     if (res.code === 200) {
       res.data = res.data[0]
-      console.log(res.data)
       state.productId = res.data.id;
       productDetails.nonValueList = res.data.nonValueList;
       productDetails.valueList = res.data.valueList
@@ -245,13 +260,12 @@ const edit = () => {
 }
 
 
-onMounted(() => {
-  getProductSort().then(res => {
+onMounted( async () => {
+   getList()
+  const res =  await getProductSort()
     if (res.code === 200) {
       state.sortList = res.data
-      console.log(state.sortList)
     }
-  })
 
 })
 

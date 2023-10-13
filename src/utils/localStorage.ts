@@ -3,6 +3,11 @@ export function getLocalstorage(key: string) {
     value = value === null ? '' : value
     return value
 }
+export function getJSONLocalstorage(key: string) {
+    let value = window.localStorage.getItem(key)
+    value = value === null ? '' : value
+    return JSON.parse(value)
+}
 
 export function setLocalstorage(key: string, value: any) {
     if (key && value !== '') {

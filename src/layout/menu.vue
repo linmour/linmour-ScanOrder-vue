@@ -45,17 +45,25 @@
 
 import {useMenuStore} from "../stores";
 import {onMounted, ref, watch} from "vue";
-import {getLocalstorage} from "../utils/localStorage";
+import {getLocalstorage, setLocalstorage} from "../utils/localStorage";
+import {getMenus} from "../api/linmour-system/menu";
 
 
 
-
+const mm = useMenuStore()
 const  menus = ref()
 
-onMounted(() =>{
-  menus.value = JSON.parse(getLocalstorage("Menus"))
-  num.value = menu.getSort()
+onMounted( async () =>{
 
+  if (getLocalstorage("Menus") === ''){
+    const res = await getMenus();
+    if (res.code === 200) {
+      setLocalstorage("Menus", res.data);
+      num.value = menu.getSort();
+      mm.setSort('1')
+    }
+  }
+  menus.value = JSON.parse(getLocalstorage("Menus"));
 })
 
 

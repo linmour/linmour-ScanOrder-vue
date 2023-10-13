@@ -50,7 +50,7 @@ const routes = [
       {
         path: '/subclass',
         name: 'Subclass',
-        component: () => import('@/component/upoloadProduct.vue'),
+        component: () => import('@/component/upoloadImgs.vue'),
         meta: {
           group: 'group2' // 设置路由所属的组名
         }

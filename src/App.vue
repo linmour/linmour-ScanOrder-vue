@@ -4,7 +4,8 @@
 
 
 <script>
-import {getLocalstorage} from "@/utils/localStorage";
+import {getLocalstorage, setLocalstorage} from "@/utils/localStorage";
+import {getDictList} from "@/api/linmour-system/dict";
 
 export default {
 
@@ -27,7 +28,7 @@ export default {
   methods: {
     initWebSocket() {
       // WebSocket与普通的请求所用协议有所不同，ws等同于http，wss等同于https
-      let wsUrl = 'ws://127.0.0.1:12800/websocket/'+'1';
+      let wsUrl = 'ws://127.0.0.1:12800/websocket/order/'+'1';
       this.websocket = new WebSocket(wsUrl);
       this.websocket.onopen = this.websocketonopen;
       this.websocket.onerror = this.websocketonerror;

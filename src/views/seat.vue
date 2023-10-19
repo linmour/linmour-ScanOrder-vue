@@ -1,6 +1,6 @@
 <template>
   <el-header>
-  <el-button @click="addTable">新增位置</el-button>
+    <el-button @click="addTable">新增位置</el-button>
 
   </el-header>
 
@@ -55,7 +55,7 @@
                   @confirm="confirmEvent(index,state.orderList.orderInfoDtos[index].tableId)"
               >
                 <template #reference>
-                  <el-checkbox  @click.native="handleCheckboxClick" label="订单是否完成" size="large"/>
+                  <el-checkbox @click.native="handleCheckboxClick" label="订单是否完成" size="large"/>
                 </template>
               </el-popconfirm>
 
@@ -85,8 +85,8 @@
 
           </div>
         </div>
-        <el-badge v-else value="新的订单" class="item" >
-          <el-button  @click="viewOrder(index)">查看新的订单</el-button>
+        <el-badge v-else value="新的订单" class="item">
+          <el-button @click="viewOrder(index)">查看新的订单</el-button>
         </el-badge>
 
       </el-card>
@@ -94,11 +94,11 @@
   </el-dialog>
   <el-dialog v-model="addTableVisible" title="Warning" width="30%" center>
     <el-form :model="state.tableInfo" label-width="80px" style="padding: 0 20px" status-icon>
-      <el-form-item prop="name" label="餐桌名字"  >
-        <el-input v-model="state.tableInfo.name" autocomplete="off" />
+      <el-form-item prop="name" label="餐桌名字">
+        <el-input v-model="state.tableInfo.name" autocomplete="off"/>
       </el-form-item>
       <el-form-item prop="size" label="二维码大小" label-width="90px">
-        <el-input v-model="state.tableInfo.size" autocomplete="off" />
+        <el-input v-model="state.tableInfo.size" autocomplete="off"/>
       </el-form-item>
       <el-form-item>
         <el-button @click="createQR">保存</el-button>
@@ -122,26 +122,26 @@ const addTableVisible = ref(false)
 const state = reactive({
   cacheOrderList: [],
   form: {},
-  tableInfo:{},
+  tableInfo: {},
   orderList: {
     orderDetailDtos: [],
     orderInfoDtos: []
   }
 })
-const createQR = ()  =>{
+const createQR = () => {
   addTableVisible.value = false
-  createTable(state.tableInfo).then(res =>{
-    if (res.data === 200){
+  createTable(state.tableInfo).then(res => {
+    if (res.data === 200) {
       state.form.qrCodeUrl = res.data
       state.tableInfo = []
     }
   })
 }
-const addTable = () =>{
+const addTable = () => {
   addTableVisible.value = true
 }
 
-const handleCheckboxClick = (event) =>{
+const handleCheckboxClick = (event) => {
   event.preventDefault()
 }
 
@@ -164,7 +164,7 @@ const confirmEvent = (index, tableId) => {
   const it = state.orderList.orderInfoDtos[index]
   it.orderStatus = 1
   changeOrder(it).then(res => {
-    if (res.code === 200){
+    if (res.code === 200) {
       if (getLocalstorage('OrderList') !== '') {
         const a = JSON.parse(getLocalstorage("OrderList"))
         a.forEach(m => {
@@ -196,17 +196,16 @@ const confirmEvent = (index, tableId) => {
 
 //后台推送订单
 const getSocketData = (res) => {
+  console.log(state.cacheOrderList,'5+565+556235656+5++5')
   let flag = true
   res = JSON.parse(res.detail.data)
-  console.log(res)
   if (res === 1) {
     console.log('检测连接')
   } else if (res.msg === 'order') {
     //同一桌的放在一起
-    console.log(res)
-    res.data.tableId = res.data.orderInfoDtos[0].tableId
+    res.data.tableId = res.data.orderInfoDtos.tableId
     if (getLocalstorage('OrderList') === '') {
-      console.log('没有桌子')
+      console.log('没有桌子----------')
       state.cacheOrderList.push(res.data)
       setLocalstorage("OrderList", state.cacheOrderList)
     } else {
@@ -214,10 +213,12 @@ const getSocketData = (res) => {
       state.cacheOrderList = JSON.parse(getLocalstorage('OrderList'))
       state.cacheOrderList.forEach(m => {
         //找到桌子
-        if (m.tableId === res.data.orderInfoDtos[0].tableId) {
+        if (m.tableId === res.data.orderInfoDtos.tableId) {
+          m.orderInfoDtos.payAmount = m.orderInfoDtos.payAmount + res.data.orderInfoDtos.payAmount
           //添加
-          Object.assign(m.orderInfoDtos, res.data.orderInfoDtos);
-          Object.assign(m.orderDetailDtos, res.data.orderDetailDtos);
+          res.data.orderDetailDtos.forEach(n =>{
+            m.orderDetailDtos.push(n)
+          })
           flag = false
         }
         if (flag) {
@@ -325,6 +326,7 @@ const handleClose = () => {
   margin-top: 50px;
   text-align: right;
 }
+
 .container {
   display: flex;
   justify-content: space-between;

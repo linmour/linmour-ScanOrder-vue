@@ -1,23 +1,9 @@
 <template>
 
-  <el-upload accept="image/*" style="display: inline-block;"
-             multiple
-             :file-list="fileList"
-             :on-change="fileChange"
-             :on-remove="fileRemove"
-             :auto-upload="false"
-             name="file"
-  >
-
-    <el-button type="primary" plain>
-      <i class="el-icon-upload el-icon--right"></i>点击选择图片
-    </el-button>
-  </el-upload>
-  <el-button type="success" plain @click="submitUpload">确认上传</el-button>
 
 </template>
 <script>
-import {uploadImage} from "../api/linmour-system/upload";
+
 
 export default {
   data() {

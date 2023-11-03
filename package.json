@@ -9,7 +9,7 @@
     "build-only": "vite build",
     "build:pro": "vue-tsc && vite build --mode production",
     "build:dev": "vue-tsc && vite build --mode development",
-    "type-check": "vue-tsc --noEmit -p tsconfig.app.json --composite false"
+    "type-check": "tsc"
   },
   "dependencies": {
     "@element-plus/icons-vue": "^2.1.0",

@@ -2,8 +2,8 @@
   <el-row class="login-container">
     <el-col :lg="16" :md="12" class="left">
       <div>
-        <div>欢迎光临</div>
-        <div>此站点是《vue3 + vite实战商城后台开发》视频课程的演示地址</div>
+        <div>欢迎使用</div>
+        <div>此站点是linmour扫码点餐后台</div>
       </div>
     </el-col>
     <el-col :lg="8" :md="12" class="right">
@@ -31,6 +31,23 @@
               </el-icon>
             </template>
           </el-input>
+        </el-form-item>
+        <el-form-item class="button3">
+          <el-button :text="true" @click="register">立即注册</el-button>
+          <span>|</span>
+          <el-button :text="true">忘记密码</el-button>
+          <span>|</span>
+          <el-button :text="true">
+            <el-switch
+                v-model="userType"
+                inline-prompt
+                :active-value="1"
+                :inactive-value="0"
+                active-text="商户"
+                inactive-text="管理者"
+                style="--el-switch-on-color: #13ce66; --el-switch-off-color: #6366f1"
+            />
+          </el-button>
         </el-form-item>
         <el-form-item>
           <el-button round color="#626aef" class="w-[250px]" type="primary" @click="onSubmit" :loading="loading">登 录
@@ -76,7 +93,11 @@ const rules = {
 
 const formRef = ref(null)
 const loading = ref(false)
+const userType = ref('2')
 
+const register = () =>{
+  router.push('/register')
+}
 
 const onSubmit = async () => {
   loading.value = true
@@ -103,8 +124,6 @@ const onSubmit = async () => {
       if (dictRes.code === 200) {
         setLocalstorage("DictList", dictRes.data);
       }
-
-
       router.push("/");
     }
   } catch (error) {
@@ -147,4 +166,12 @@ const onSubmit = async () => {
 .right .line {
   @apply h-[1px] w-16 bg-gray-200;
 }
+
+.button3 {
+  width: 500px;
+  display: flex;
+  align-items: center;
+}
+
+
 </style>

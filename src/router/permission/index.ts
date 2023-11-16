@@ -11,7 +11,7 @@ router.beforeEach((to,from,next)=>{
     const token = getLocalstorage("Token")
 
     // 没有登录，强制跳转回登录页
-    if(!token && to.path != "/login"){
+    if(!token && (to.path !== "/login" && to.path !== "/register" && to.path !== '/password')){
         error("请先登录","error")
         return next({ path:"/login" })
     }

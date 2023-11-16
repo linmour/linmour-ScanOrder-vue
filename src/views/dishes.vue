@@ -1,6 +1,5 @@
 <template>
   <div>
-
     <el-container>
       <el-aside width="90%">
         <el-tabs v-model="activeName" @tab-click="handleClick" type="card">

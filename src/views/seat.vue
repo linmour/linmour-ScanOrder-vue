@@ -187,7 +187,6 @@ const getSocketData = (res) => {
   if (res === 1) {
     console.log('检测连接')
   } else if (res.msg === 'order') {
-    console.log('*-*98989*5')
     // 同一桌的放在一起
     res.data.tableId = res.data.orderInfoDtos.tableId
     res.data.order[0].remark = res.data.orderInfoDtos.remark
@@ -196,7 +195,6 @@ const getSocketData = (res) => {
       state.cacheOrderList.push(res.data)
       setLocalstorage("OrderList", state.cacheOrderList)
     } else {
-
       state.cacheOrderList = JSON.parse(getLocalstorage('OrderList'))
       let flag = true
       //每张桌子
@@ -210,7 +208,6 @@ const getSocketData = (res) => {
             //每道菜
             state.form.forEach(o => {
               if (m.tableId === o.id) {
-                console.log(n.orderDetailDtos.length, '---------')
                 o.orderNum = o.orderNum + n.length
               }
             })
@@ -221,6 +218,8 @@ const getSocketData = (res) => {
       if (flag){
         state.cacheOrderList.push(res.data)
       }
+      console.log(state.form,"======---===")
+
     }
     setLocalstorage("OrderList", state.cacheOrderList)
   }
@@ -245,8 +244,6 @@ const orderDetail = (tableId) => {
     }
 
   }
-
-
   dialogWidth.value = (state.orderList.order.length) * 510
   dialogVisible.value = true
 
@@ -281,6 +278,7 @@ onMounted(async () => {
   getTable().then(res => {
     if (res.code === 200) {
       state.form = res.data
+      console.log(state.form,"*-*-*-----------------------")
       // orderNum()
     }
   })

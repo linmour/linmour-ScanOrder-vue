@@ -17,6 +17,10 @@ export function userInfo() {
     return request.post('/system/merchant/userInfo');
 }
 
+export function register(){
+
+}
+
 
 export function update(userInfo) {
     return request.post('/system/merchant/update',{

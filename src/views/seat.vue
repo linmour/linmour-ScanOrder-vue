@@ -13,7 +13,6 @@
             <el-tag :type="item.status === 1 ? 'danger' : (item.status === 0 ? 'success' : 'warning')">
               {{ item.status === 1 ? '有人' : (item.status === 0 ? '空闲' : '已预订') }}
             </el-tag>
-
           </div>
         </template>
         <div class="container">
@@ -24,9 +23,22 @@
               {{ item.serving === 1 ? '是' : "否" }}
             </el-tag>
             <div>
-              <el-badge :value="item.orderNum" class="item" :hidden="item.orderNum === 0">
+              <el-badge value="new" class="item" :hidden="item.hidden">
                 <el-button @click="orderDetail(item.id)">订单详情</el-button>
               </el-badge>
+              <el-popconfirm
+                  width="250"
+                  cancel-button-text="取消"
+                  confirm-button-text="确认"
+                  icon-color="#626AEF"
+                  title="删除本桌的订单信息，请待顾客确认后操作"
+                  @confirm="confirmOverOrder(item.id)"
+              >
+                <template #reference>
+                  <el-button>完成订单</el-button>
+                </template>
+              </el-popconfirm>
+
             </div>
           </div>
           <!-- 右侧内容 -->
@@ -38,58 +50,49 @@
     </el-col>
 
   </el-row>
-  <el-dialog v-model="dialogVisible" title="餐桌订单" :width="dialogWidth" :before-close="handleClose" :show-close="false"
+  <el-dialog v-model="dialogVisible" title="餐桌订单" width="2000" :before-close="handleClose" :show-close="false"
              draggable>
-    <div style="display: flex;  gap: 10px ; width: 5500px">
+    <div style="display: flex; flex-wrap: wrap; gap: 10px ; width: 100%">
       <el-card v-for="(item,index) in state.orderList.order" class="box-card" ref="cardRefs">
-        <div v-if="state.orderList.orderInfoDtos.orderStatus !== 1">
+        <!--        v-if="state.orderList.orderInfoDtos.orderStatus !== 1"-->
+        <div>
           <el-row :gutter="20">
-            订单号:{{ item.orderId }}
             <div style="margin-left: auto">
-              <!--              <el-popconfirm-->
-              <!--                  width="250"-->
-              <!--                  cancel-button-text="取消"-->
-              <!--                  confirm-button-text="确认已完成"-->
-              <!--                  icon-color="#626AEF"-->
-              <!--                  title="你确定订单已完成？点击确认将删除订单信息"-->
-              <!--                  @confirm="confirmEvent(index,state.orderList.orderInfoDtos.tableId)"-->
-              <!--              >-->
-              <!--                <template #reference>-->
-              <!--                  <el-checkbox @click.native="handleCheckboxClick" label="订单是否完成" size="large"/>-->
-              <!--                </template>-->
-              <!--              </el-popconfirm>-->
+              <el-popconfirm
+                  width="250"
+                  cancel-button-text="取消"
+                  confirm-button-text="确认"
+                  icon-color="#626AEF"
+                  title="你确定改变上菜状态？"
+                  @confirm="confirmEvent(item)"
+                  @cancel="cancel(item)"
+              >
+                <template #reference>
+                  <el-checkbox v-model="item.f" label="菜品是否完成" size="large"/>
+                </template>
+              </el-popconfirm>
 
             </div>
           </el-row>
 
-          <div v-for="it in item.orderDetailDtos" style="margin-top: 5px">
-            <el-row :gutter="20">
-              <el-image style="width: 100px; height: 100px" :src="item.picture"/>
-              <div style="margin-left: 10px">
-                {{ it.name }}
-                <div style="margin-top: 50px">
-                  ￥ {{ it.price }}
-                </div>
+          <!--          <div v-for="it in item.list" style="margin-top: 5px">-->
+          <el-row :gutter="20">
+            <el-image style="width: 100px; height: 100px" :src="item.picture"/>
+            <div style="margin-left: 10px">
+              {{ item.name }}
+              <div style="margin-top: 50px">
+                ￥ {{ item.price }}
               </div>
-              <div style="margin-top: 70px;margin-left: auto">
-                *{{ it.quantity }}
-              </div>
-            </el-row>
-
-          </div>
-
-          <div class="footer">
-            <div>备注 :{{ item.remark }}</div>
-
-
-          </div>
+            </div>
+            <div style="margin-top: 70px;margin-left: auto">
+              *{{ item.quantity }}
+            </div>
+          </el-row>
         </div>
-        <el-badge v-else value="新的订单" class="item">
-          <el-button @click="viewOrder(index)">查看新的订单</el-button>
-        </el-badge>
-
       </el-card>
     </div>
+    <div style="margin-left: 95%;font-size: 20px">总价:{{ PayAmount }}</div>
+
   </el-dialog>
   <el-dialog v-model="addTableVisible" title="Warning" width="30%" center>
     <el-form :model="state.tableInfo" label-width="80px" style="padding: 0 20px" status-icon>
@@ -110,20 +113,16 @@
 <script setup>
 import {onMounted, reactive, ref} from "vue";
 import {createTable, getTable} from "../api/linmour-restaurant/table";
-import {changeOrder} from "../api/linmour-order";
+import {changeOrder, checkout} from "../api/linmour-order";
 import {getLocalstorage, setLocalstorage} from "../utils/localStorage";
 
 const dialogVisible = ref(false);
-const dialogWidth = ref('40%');
 const addTableVisible = ref(false)
 
 
 const state = reactive({
   cacheOrderList: [],
-  form: {
-    orderNum: 0
-
-  },
+  form: {},
   tableInfo: {},
   orderList: {
     order: [],
@@ -143,41 +142,35 @@ const addTable = () => {
   addTableVisible.value = true
 }
 
-const handleCheckboxClick = (event) => {
-  event.preventDefault()
+
+const cancel = () => {
+  orderDetail(TableId.value)
+}
+const confirmOverOrder = (tableId) => {
+  checkout(tableId, 4).then(res => {
+    const a = JSON.parse(getLocalstorage('OrderList'))
+    const index = a.findIndex(i => i.tableId == tableId.toString());
+    if (index !== -1) {
+      a.splice(index, 1);
+      PayAmount.value = 0
+      state.cacheOrderList = []
+      setLocalstorage("OrderList", a)
+    }
+
+  })
 }
 
 
-const confirmEvent = (index, tableId) => {
-  const it = state.orderList.orderInfoDtos
-  it.orderStatus = 1
-  changeOrder(it).then(res => {
-    if (res.code === 200) {
-      if (getLocalstorage('OrderList') !== '') {
-        const a = JSON.parse(getLocalstorage("OrderList"))
-        a.forEach(m => {
-          if (m.tableId === it.tableId) {
-            //找到并修改订单信息
-            m.orderInfoDtos.forEach(n => {
-              if (n.id === it.id) {
-                Object.assign(n, it);
-              }
-            })
-          }
-        })
-        a.forEach(a => {
-          if (a.tableId === tableId) {
-            a.orderInfoDtos = a.orderInfoDtos.filter(item => item.id !== it.id);
-            a.orderDetailDtos = a.orderDetailDtos.filter(item => item.orderId !== it.id);
-          }
-        })
-        setLocalstorage("OrderList", a)
-        orderDetail(state.orderList.orderInfoDtos.tableId)
-      }
-      it.orderStatus = 2
-    }
-  })
-
+const confirmEvent = (item) => {
+  item.f = true
+  const a = JSON.parse(getLocalstorage('OrderList'))
+  const it = a.find(i => i.tableId == TableId.value)
+  if (it) {
+    const m = it.list.find(n => n.id == item.id)
+    m.f = !m.f
+  }
+  setLocalstorage("OrderList", a)
+  orderDetail(TableId.value)
 }
 
 
@@ -187,66 +180,76 @@ const getSocketData = (res) => {
   if (res === 1) {
     console.log('检测连接')
   } else if (res.msg === 'order') {
-    // 同一桌的放在一起
-    res.data.tableId = res.data.orderInfoDtos.tableId
-    res.data.order[0].remark = res.data.orderInfoDtos.remark
-    if (getLocalstorage('OrderList') === '') {
-      console.log('没有桌子----------')
+    // 找到要修改的对象的索引
+    const index = state.form.findIndex(i => i.id == res.data.tableId);
+    if (index !== -1) {
+      // 根据索引修改原数组中的值
+      state.form[index].hidden = false;
+    }
+    console.log("==564564564564=======", state.cacheOrderList)
+    if (getLocalstorage('OrderList') == '' || getLocalstorage('OrderList') == '[]') {
+
+      console.log('第一次点餐----------')
+      res.data.list.forEach(m => {
+        //标记菜品是否完成
+        m.f = false
+      })
       state.cacheOrderList.push(res.data)
       setLocalstorage("OrderList", state.cacheOrderList)
     } else {
       state.cacheOrderList = JSON.parse(getLocalstorage('OrderList'))
-      let flag = true
-      //每张桌子
-      state.cacheOrderList.forEach(m => {
-        console.log(m.tableId,res.data.tableId)
-        if (m.tableId === res.data.tableId) {
-          flag = !flag
-          //每个订单
-          res.data.order.forEach(n => {
-            m.order.push(n)
-            //每道菜
-            state.form.forEach(o => {
-              if (m.tableId === o.id) {
-                o.orderNum = o.orderNum + n.length
-              }
-            })
-          })
-        }
-        m.orderInfoDtos.payAmount = m.orderInfoDtos.payAmount + res.data.orderInfoDtos.payAmount
-      })
-      if (flag){
-        state.cacheOrderList.push(res.data)
+      const originalArray = state.cacheOrderList.find(i => i.tableId === res.data.tableId)
+
+      if (originalArray) {
+        originalArray.payAmount = res.data.payAmount
+
+        
+        // 遍历要插入的新数组
+        res.data.list.forEach(newArrayItem => {
+          // 查找原有数据中是否存在相同id的对象
+          // const existingItem = originalArray.list.find(item => item.id === newArrayItem.id);
+          // if (existingItem) {
+          //   // 如果存在相同id的对象，则在原有数据上的quantity字段加
+          //   existingItem.quantity = newArrayItem.quantity + existingItem.quantity;
+          // } else {
+          //   // 如果不存在相同id的对象，则将新数据追加到数组中
+          //   console.log(newArrayItem, "22222222")
+          //
+          //   originalArray.list.push(newArrayItem);
+          // }
+          newArrayItem.f = false
+          originalArray.list.push(newArrayItem);
+        });
+      } else {
+        console.log("565665---",state.cacheOrderList)
+        state.cacheOrderList.push(res.data);
       }
-      console.log(state.form,"======---===")
 
     }
     setLocalstorage("OrderList", state.cacheOrderList)
   }
-
-
 }
+const PayAmount = ref()
+const TableId = ref()
 const orderDetail = (tableId) => {
-
-
+  TableId.value = tableId
+  const index = state.form.findIndex(i => i.id == tableId);
+  if (index !== -1) {
+    // 根据索引修改原数组中的值
+    state.form[index].hidden = true;
+  }
   if (getLocalstorage("OrderList") !== '') {
     const cacheOrderList = JSON.parse(getLocalstorage("OrderList"))
-
     state.orderList.order = []
-    state.orderList.orderInfoDtos = []
 
-    for (let i = 0; i < cacheOrderList.length; i++) {
-      console.log(tableId)
-      if (cacheOrderList[i].tableId === tableId) {
-        state.orderList.order = [...cacheOrderList[i].order]
-        state.orderList.orderInfoDtos = cacheOrderList[i].orderInfoDtos
-      }
+    const existingItem = cacheOrderList.find(i => i.tableId == tableId)
+
+    if (existingItem) {
+      state.orderList.order = existingItem.list
+      PayAmount.value = existingItem.payAmount
     }
-
   }
-  dialogWidth.value = (state.orderList.order.length) * 510
   dialogVisible.value = true
-
 }
 
 const viewOrder = (index) => {
@@ -278,8 +281,10 @@ onMounted(async () => {
   getTable().then(res => {
     if (res.code === 200) {
       state.form = res.data
-      console.log(state.form,"*-*-*-----------------------")
-      // orderNum()
+      state.form.forEach(m => {
+        m.hidden = true
+      })
+      console.log(state.form, "*-*-*-----------------------")
     }
   })
 })

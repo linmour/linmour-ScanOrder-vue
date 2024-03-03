@@ -8,3 +8,6 @@ export function changeOrder(orderInfoDto) {
     return request.post('/order/order/changeOrder', {orderInfoDto});
 }
 
+export const checkout = (tableId,payType,openid) => request({url: '/app/order/order/checkout'  ,method: 'post',
+    data: {tableId,payType,openid}
+})

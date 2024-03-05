@@ -1,8 +1,8 @@
 <template>
   <div>
     <el-container>
-      <el-aside width="90%">
-        <el-tabs v-model="activeName" @tab-click="handleClick" type="card">
+      <el-aside width="auto">
+        <el-tabs @edit="handleTabsEdit" addable v-model="activeName" @tab-click="handleClick" type="card">
           <div v-for="item in state.sortList" :key="item.id">
             <el-tab-pane :label="item.sort" :name="item.id"></el-tab-pane>
           </div>
@@ -32,13 +32,13 @@
       </el-table-column>
       <el-table-column prop="status" label="上架状态">
         <template #default="scope">
-<!--
-              :active-value="1"
-              :inactive-value="0"
-              如果要传数字前面要加：
-              如果要字符串就不加
-              但是一定要加“”
-        -->
+          <!--
+                        :active-value="1"
+                        :inactive-value="0"
+                        如果要传数字前面要加：
+                        如果要字符串就不加
+                        但是一定要加“”
+                  -->
           <el-switch
               v-model="scope.row.status"
               inline-prompt
@@ -58,6 +58,9 @@
       </el-table-column>
     </el-table>
   </div>
+      <div class="padding-left-l padding-right-l">
+        <input-box :caption="caption" :show="showInput" :value="inputValue" @close="showInput=false" @confirm="inputBoxYes" @cancel="showInput=false"/>
+      </div>
 
 
   <el-drawer v-model="drawerFormVisible" title="I am the title" :with-header="false">
@@ -154,17 +157,50 @@
 
 <script lang="ts" setup>
 import {onMounted, reactive, ref, watch} from 'vue'
-import type {TabsPaneContext} from 'element-plus'
+import type {TabPaneName, TabsPaneContext} from 'element-plus'
 import Page from "../component/paging.vue";
 import {
   changeProduct,
   getProductDetails,
   getProductPage,
-  getProductSort
+  getProductSort,
+  createProductSort
 } from "@/api/linmour-product/product";
 import {error} from "@/utils/tips";
 import router from "@/router";
 import {getLocalstorage} from "@/utils/localStorage";
+import InputBox from "../component/inputBox.vue"
+
+
+
+const inputValue = ref('');
+const caption = ref('');
+const msgText = ref('');
+const showMsgShow = ref(false);
+const showInput = ref(false);
+
+
+const InputBoxClick = () => {
+  caption.value = "请输入";
+  inputValue.value = "";
+  showInput.value = true;
+};
+
+const sortName = ref("")
+
+const inputBoxYes = async (value) => {
+  sortName.value = value
+  console.log(sortName.value,"----",value)
+  let sort = sortName.value
+  let shopId = 2
+  console.log(sort,"++++")
+  await createProductSort(sort, shopId)
+  await getSort()
+  showInput.value = false;
+  caption.value = "提示";
+  msgText.value = "您输入的值是【" + value + "】";
+  showMsgShow.value = true;
+};
 
 
 const dialogFormVisible = ref(false)
@@ -194,16 +230,41 @@ const getList = async () => {
   shopId.value = JSON.parse(getLocalstorage("ShopId")).shopId
   state.queryParams.shopId = shopId.value
   if (res.code === 200) {
-    state.tableData =  res.data.list
+    state.tableData = res.data.list
     total.value = res.data.total
   }
   state.tableData.forEach(item => {
     const pictureArray = item.picture.split(",");
     item.picture = pictureArray;
   })
+}
 
 
+const handleTabsEdit = async (
+    targetName: TabPaneName | undefined,
+    action: 'remove' | 'add'
+) => {
+  await InputBoxClick()
+  // if (action === 'add') {
 
+  // }
+  // else if (action === 'remove') {
+  //   const tabs = editableTabs.value
+  //   let activeName = editableTabsValue.value
+  //   if (activeName === targetName) {
+  //     tabs.forEach((tab, index) => {
+  //       if (tab.name === targetName) {
+  //         const nextTab = tabs[index + 1] || tabs[index - 1]
+  //         if (nextTab) {
+  //           activeName = nextTab.name
+  //         }
+  //       }
+  //     })
+  //   }
+  //
+  //   editableTabsValue.value = activeName
+  //   editableTabs.value = tabs.filter((tab) => tab.name !== targetName)
+  // }
 }
 const state = reactive({
   tableData: [],
@@ -220,9 +281,9 @@ const state = reactive({
 const changeStatus = async (row) => {
   console.log(row.status)
   const res = await changeProduct(row.id, row.status)
-    if (res.code !== 200) {
-      error("修改失败")
-    }
+  if (res.code !== 200) {
+    error("修改失败")
+  }
 }
 
 
@@ -258,13 +319,15 @@ const edit = () => {
   });
 }
 
-
-onMounted( async () => {
-   getList()
-  const res =  await getProductSort()
-    if (res.code === 200) {
-      state.sortList = res.data
-    }
+const getSort = async () => {
+  const res = await getProductSort()
+  if (res.code === 200) {
+    state.sortList = res.data
+  }
+}
+onMounted(async () => {
+  getList()
+  getSort()
 
 })
 

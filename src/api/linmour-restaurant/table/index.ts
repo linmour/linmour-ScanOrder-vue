@@ -10,3 +10,9 @@ export function createTable(dto) {
     });
 }
 
+export function update(dto) {
+    return request.post('/restaurant/table/update',{
+        dto
+    });
+}
+

@@ -1,9 +1,7 @@
 <template>
   <el-header>
     <el-button @click="addTable">新增位置</el-button>
-
   </el-header>
-
   <el-row :gutter="12">
     <el-col v-for="(item, index) in state.form" :key="index" :span="6">
       <el-card class="box-card">
@@ -19,11 +17,11 @@
           <!-- 左侧内容 -->
           <div class="left">
             菜品是否已上完:
-            <el-tag style="float: right;" :type="item.serving === 1 ? 'success' : 'danger'">
-              {{ item.serving === 1 ? '是' : "否" }}
+            <el-tag style="float: right;" :type="item.serving == 1 ? 'success' : 'danger'">
+              {{ item.serving == 1 ? '是' : "否" }}
             </el-tag>
             <div>
-              <el-badge value="new" class="item" :hidden="item.hidden">
+              <el-badge value="new" class="item" :hidden="item.dishes == 0">
                 <el-button @click="orderDetail(item.id)">订单详情</el-button>
               </el-badge>
               <el-popconfirm
@@ -64,11 +62,11 @@
                   confirm-button-text="确认"
                   icon-color="#626AEF"
                   title="你确定改变上菜状态？"
-                  @confirm="confirmEvent(item)"
+                  @confirm="confirmEvent(item,index)"
                   @cancel="cancel(item)"
               >
                 <template #reference>
-                  <el-checkbox v-model="item.f" label="菜品是否完成" size="large"/>
+                  <el-checkbox v-model="item.f" @change="change($event,item)" label="菜品是否完成" size="large"></el-checkbox>
                 </template>
               </el-popconfirm>
 
@@ -112,9 +110,10 @@
 
 <script setup>
 import {onMounted, reactive, ref} from "vue";
-import {createTable, getTable} from "../api/linmour-restaurant/table";
+import {createTable, getTable, update} from "../api/linmour-restaurant/table";
 import {changeOrder, checkout} from "../api/linmour-order";
 import {getLocalstorage, setLocalstorage} from "../utils/localStorage";
+import {error} from "../utils/tips";
 
 const dialogVisible = ref(false);
 const addTableVisible = ref(false)
@@ -131,12 +130,22 @@ const state = reactive({
 })
 const createQR = () => {
   addTableVisible.value = false
+  createTables()
+
+}
+const createTables = () => {
   createTable(state.tableInfo).then(res => {
-    if (res.data === 200) {
+    if (res.code === 200) {
+      getTables()
       state.form.qrCodeUrl = res.data
       state.tableInfo = []
     }
   })
+}
+
+
+const change = (e, item) => {
+  item.f = !e
 }
 const addTable = () => {
   addTableVisible.value = true
@@ -147,28 +156,50 @@ const cancel = () => {
   orderDetail(TableId.value)
 }
 const confirmOverOrder = (tableId) => {
-  checkout(tableId, 4).then(res => {
-    const a = JSON.parse(getLocalstorage('OrderList'))
-    const index = a.findIndex(i => i.tableId == tableId.toString());
-    if (index !== -1) {
-      a.splice(index, 1);
-      PayAmount.value = 0
-      state.cacheOrderList = []
-      setLocalstorage("OrderList", a)
-    }
-
-  })
-}
-
-
-const confirmEvent = (item) => {
-  item.f = true
   const a = JSON.parse(getLocalstorage('OrderList'))
   const it = a.find(i => i.tableId == TableId.value)
   if (it) {
-    const m = it.list.find(n => n.id == item.id)
-    m.f = !m.f
+    if (it.list.every(obj => obj.f === true)) {
+      checkout(tableId, 4).then(res => {
+        const dex = state.form.findIndex(i => i.id == tableId);
+        if (dex !== -1) {
+          // 根据索引修改原数组中的值
+          state.form[dex].dishes = 0;
+          state.form[dex].serving = 0;
+          update(state.form[dex])
+        }
+        const a = JSON.parse(getLocalstorage('OrderList'))
+        const index = a.findIndex(i => i.tableId == tableId.toString());
+        if (index !== -1) {
+          a.splice(index, 1);
+          PayAmount.value = 0
+          state.cacheOrderList = []
+          setLocalstorage("OrderList", a)
+        }
+
+      })
+    } else {
+      error("还有未完成的菜品")
+    }
   }
+
+}
+
+
+const confirmEvent = (item, index) => {
+  const a = JSON.parse(getLocalstorage('OrderList'))
+  const it = a.find(i => i.tableId == TableId.value)
+  if (it) {
+    const m = it.list[index]
+    m.f = !m.f
+    if (it.list.every(obj => obj.f === true)) {
+      let index = state.form.findIndex(i => i.id == it.tableId);
+      if (index !== -1)
+        state.form[index].serving = 1;
+      update(state.form[index])
+    }
+  }
+
   setLocalstorage("OrderList", a)
   orderDetail(TableId.value)
 }
@@ -184,11 +215,11 @@ const getSocketData = (res) => {
     const index = state.form.findIndex(i => i.id == res.data.tableId);
     if (index !== -1) {
       // 根据索引修改原数组中的值
-      state.form[index].hidden = false;
+      state.form[index].dishes = 1;
+      state.form[index].serving = 0;
+      update(state.form[index])
     }
-    console.log("==564564564564=======", state.cacheOrderList)
     if (getLocalstorage('OrderList') == '' || getLocalstorage('OrderList') == '[]') {
-
       console.log('第一次点餐----------')
       res.data.list.forEach(m => {
         //标记菜品是否完成
@@ -203,25 +234,12 @@ const getSocketData = (res) => {
       if (originalArray) {
         originalArray.payAmount = res.data.payAmount
 
-        
         // 遍历要插入的新数组
         res.data.list.forEach(newArrayItem => {
-          // 查找原有数据中是否存在相同id的对象
-          // const existingItem = originalArray.list.find(item => item.id === newArrayItem.id);
-          // if (existingItem) {
-          //   // 如果存在相同id的对象，则在原有数据上的quantity字段加
-          //   existingItem.quantity = newArrayItem.quantity + existingItem.quantity;
-          // } else {
-          //   // 如果不存在相同id的对象，则将新数据追加到数组中
-          //   console.log(newArrayItem, "22222222")
-          //
-          //   originalArray.list.push(newArrayItem);
-          // }
           newArrayItem.f = false
           originalArray.list.push(newArrayItem);
         });
       } else {
-        console.log("565665---",state.cacheOrderList)
         state.cacheOrderList.push(res.data);
       }
 
@@ -232,11 +250,13 @@ const getSocketData = (res) => {
 const PayAmount = ref()
 const TableId = ref()
 const orderDetail = (tableId) => {
+  console.log(tableId, "------------")
   TableId.value = tableId
   const index = state.form.findIndex(i => i.id == tableId);
   if (index !== -1) {
     // 根据索引修改原数组中的值
-    state.form[index].hidden = true;
+    state.form[index].dishes = 0;
+    update(state.form[index])
   }
   if (getLocalstorage("OrderList") !== '') {
     const cacheOrderList = JSON.parse(getLocalstorage("OrderList"))
@@ -252,41 +272,17 @@ const orderDetail = (tableId) => {
   dialogVisible.value = true
 }
 
-const viewOrder = (index) => {
-  const it = state.orderList.orderInfoDtos
-  it.orderStatus = 2
-  changeOrder(it).then(res => {
-    if (res.code === 200) {
-      if (getLocalstorage('OrderList') !== '') {
-        const a = JSON.parse(getLocalstorage("OrderList"))
-        a.forEach(m => {
-          if (m.tableId === it.tableId) {
-            //找到并修改订单信息
-            m.orderInfoDtos.forEach(n => {
-              if (n.id === it.id) {
-                Object.assign(n, it);
-              }
-            })
-          }
-        })
-        setLocalstorage("OrderList", a)
-      }
-    }
-  })
-}
-
-const shopId = JSON.parse(getLocalstorage("ShopId")).shopId
-onMounted(async () => {
-  window.addEventListener('onmessageWS', getSocketData)
+const getTables = () => {
   getTable().then(res => {
     if (res.code === 200) {
       state.form = res.data
-      state.form.forEach(m => {
-        m.hidden = true
-      })
-      console.log(state.form, "*-*-*-----------------------")
     }
   })
+}
+const shopId = JSON.parse(getLocalstorage("ShopId")).shopId
+onMounted(async () => {
+  window.addEventListener('onmessageWS', getSocketData)
+  await getTables()
 })
 
 const handleClose = () => {

@@ -114,6 +114,7 @@ import {createTable, getTable, update} from "../api/linmour-restaurant/table";
 import {changeOrder, checkout} from "../api/linmour-order";
 import {getLocalstorage, setLocalstorage} from "../utils/localStorage";
 import {error} from "../utils/tips";
+import {initWebSocket} from "../utils/webstock";
 
 const dialogVisible = ref(false);
 const addTableVisible = ref(false)
@@ -134,11 +135,12 @@ const createQR = () => {
 
 }
 const createTables = () => {
+  console.log(state.tableInfo)
   createTable(state.tableInfo).then(res => {
     if (res.code === 200) {
       getTables()
       state.form.qrCodeUrl = res.data
-      state.tableInfo = []
+      state.tableInfo = {}
     }
   })
 }
@@ -211,6 +213,8 @@ const getSocketData = (res) => {
   if (res === 1) {
     console.log('检测连接')
   } else if (res.msg === 'order') {
+    console.log(res.data)
+    console.log(state.form)
     // 找到要修改的对象的索引
     const index = state.form.findIndex(i => i.id == res.data.tableId);
     if (index !== -1) {
@@ -250,7 +254,6 @@ const getSocketData = (res) => {
 const PayAmount = ref()
 const TableId = ref()
 const orderDetail = (tableId) => {
-  console.log(tableId, "------------")
   TableId.value = tableId
   const index = state.form.findIndex(i => i.id == tableId);
   if (index !== -1) {
@@ -281,6 +284,7 @@ const getTables = () => {
 }
 const shopId = JSON.parse(getLocalstorage("ShopId")).shopId
 onMounted(async () => {
+  initWebSocket();
   window.addEventListener('onmessageWS', getSocketData)
   await getTables()
 })

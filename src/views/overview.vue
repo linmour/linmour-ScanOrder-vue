@@ -10,6 +10,7 @@
 <script setup>
 import {ref, onMounted} from 'vue';
 import * as echarts from 'echarts';
+import { initWebSocket } from '../utils/webstock';
 
 const barContainer = ref(null);
 const lineContainer = ref(null);
@@ -26,7 +27,6 @@ onMounted(() => {
     dates: ['2023-07-01', '2023-07-02', '2023-07-03', '2023-07-04', '2023-07-05', '2023-07-06'],
     values: [100, 1500, 1200, 1800, 2000, 1600]
   };
-
   const constOption = {
     title: {
       text: '营业额柱状图',
@@ -51,7 +51,6 @@ onMounted(() => {
       }
     ]
   };
-
   const lineOption = {
     title: {
       text: '营业额折线图',
@@ -112,7 +111,6 @@ onMounted(() => {
       }
     ]
   };
-
   const data = [
     {name: '菜品1', sales: 100},
     {name: '菜品2', sales: 200},
@@ -120,7 +118,6 @@ onMounted(() => {
     {name: '菜品', sales: 150},
     {name: '菜品5', sales: 250},
   ];
-
   const aOption = {
     tooltip: {
       trigger: 'axis',
@@ -142,11 +139,11 @@ onMounted(() => {
       },
     ],
   };
-
   barChart.setOption(constOption);
   lineChart.setOption(lineOption);
   myChart.setOption(myOption);
   aChart.setOption(aOption);
+  initWebSocket();
 });
 
 

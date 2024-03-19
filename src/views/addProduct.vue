@@ -28,9 +28,9 @@
                   >
                     <el-option
                         v-for="item in state.sortList"
-                        :key="item.id"
-                        :label="item.sort"
-                        :value="item.id"
+                        :key="item.sort"
+                        :label="item.id"
+                        :value="item.sort"
                     />
                   </el-select>
                 </el-form-item>

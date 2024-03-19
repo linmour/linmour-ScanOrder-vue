@@ -59,12 +59,10 @@
 </template>
 
 <script setup>
-import {ref, reactive} from 'vue'
+import {ref, reactive, onMounted} from 'vue'
 import {login} from '@/api/linmour-system/merchant'
 import {useRouter} from 'vue-router'
-import {setLocalstorage} from "../utils/localStorage";
-import {getMenus} from "../api/linmour-system/menu";
-import {useMenuStore} from "../stores";
+import {getLocalstorage, setLocalstorage} from "../utils/localStorage";
 import {getDictList} from "../api/linmour-system/dict";
 
 
@@ -95,9 +93,101 @@ const formRef = ref(null)
 const loading = ref(false)
 const userType = ref('2')
 
-const register = () =>{
+const register = () => {
   router.push('/register')
 }
+// const socket = ref(null);
+// const timeout = ref(10 * 1000);
+// const timeoutObj = ref(null);
+// const serverTimeoutObj = ref(null);
+// const lockReconnect = ref(false);
+// const websocket = ref(null)
+// const timeoutnum = ref(null)
+//
+// // 初始化 websocket
+// const initWebSocket = () => {
+//   let wsUrl = 'ws://127.0.0.1:12800/websocket/order/' + '1';
+//   let a = JSON.parse(getLocalstorage("ShopId")).shopId
+//   websocket.value = new WebSocket(wsUrl, [a]);
+//   websocket.value.onopen = websocketonopen;
+//   websocket.value.onerror = websocketonerror;
+//   websocket.value.onmessage = setOnmessageMessage;
+//   websocket.value.onclose = websocketclose;
+// }
+//
+// // 页面加载时执行初始化 websocket
+// // onMounted(() => {
+// //   initWebSocket();
+// // });
+//
+// const start = () => {
+//   console.log('start');
+//   clearTimeout(timeoutObj.value);
+//   clearTimeout(serverTimeoutObj.value);
+//   timeoutObj.value = setTimeout(() => {
+//     if (websocket.value && websocket.value.readyState === 1) {
+//       let actions = {"test": "12345"};
+//       websocket.send(JSON.stringify(actions));
+//     } else {
+//       reconnect();
+//     }
+//     serverTimeoutObj.value = setTimeout(() => {
+//       websocket.value.close();
+//     }, timeout.value);
+//   }, timeout.value);
+// }
+//
+// const reset = () => {
+//   clearTimeout(timeoutObj.value);
+//   clearTimeout(serverTimeoutObj.value);
+//   start();
+// }
+//
+// const reconnect = () => {
+//   if (lockReconnect.value) return;
+//   lockReconnect.value = true;
+//   timeoutnum.value && clearTimeout(timeoutnum.value);
+//   timeoutnum.value = setTimeout(() => {
+//     initWebSocket();
+//     lockReconnect.value = false;
+//   }, 5000);
+// }
+//
+// const setOnmessageMessage = async (event) => {
+//   reset();
+//   window.dispatchEvent(new CustomEvent('onmessageWS', {
+//     detail: {
+//       data: event.data
+//     }
+//   }));
+// }
+//
+// const websocketonopen = () => {
+//   start();
+//   console.log("WebSocket连接成功!!!" + new Date() + "----" + websocket.value.readyState);
+//   clearInterval(this.otimer);
+// }
+//
+// const websocketonerror = (e) => {
+//   console.log("WebSocket连接发生错误");
+//   console.log(e);
+// }
+//
+// const websocketclose = (e) => {
+//   websocket.value.close();
+//   clearTimeout(timeoutObj.value);
+//   clearTimeout(serverTimeoutObj.value);
+//   console.log("WebSocket连接关闭");
+//   console.log(e);
+// }
+//
+// const websocketsend = (messsage) => {
+//   websocket.value.send(messsage);
+// }
+//
+// const closeWebSocket = () => {
+//   websocket.value.close();
+// }
 
 const onSubmit = async () => {
   loading.value = true
@@ -118,12 +208,11 @@ const onSubmit = async () => {
     if (loginRes.code === 200) {
       setLocalstorage("Token", loginRes.data.token);
       setLocalstorage("UserInfo", loginRes.data.userInfo);
-
       const dictRes = await getDictList();
-
       if (dictRes.code === 200) {
         setLocalstorage("DictList", dictRes.data);
       }
+      // initWebSocket();
       router.push("/");
     }
   } catch (error) {

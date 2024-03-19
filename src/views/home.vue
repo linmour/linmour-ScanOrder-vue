@@ -76,8 +76,17 @@
             <el-option :key="0" label="停用" :value="0"/>
           </el-select>
         </el-form-item>
-        <el-form-item  prop="businessHours" label="运营时间">
-          <el-time-picker v-model="state.form.businessHours" autocomplete="off" value-format="HH:mm:ss"/>
+        <el-form-item  prop="value11" label="运营时间">
+          <el-time-picker
+              is-range
+              v-model="value1"
+              :format="'HH:mm'"
+              range-separator="至"
+              start-placeholder="开始时间"
+              end-placeholder="结束时间"
+              placeholder="选择时间范围">
+          </el-time-picker>
+
         </el-form-item>
       </el-form>
       <template #footer>
@@ -121,6 +130,7 @@ const state = reactive({
   },
   form: {}
 })
+const  value1= ref([new Date(2016, 9, 10, 8, 40), new Date(2016, 9, 10, 9, 40)])
 
 const total = ref(0)
 const getList =  async () =>{

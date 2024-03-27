@@ -1,7 +1,11 @@
 import request from "@/utils/request";
 
-export function getOrderInfo(tableId) {
-    return request.get('/order/order/getOrderInfo/'+ tableId);
+// export function getOrderInfo(tableId) {
+//     return request.get('/order/order/getOrderInfo/'+ tableId);
+// }
+
+export function GetCurrentOrderInfo(tableId) {
+    return request.get('/order/order/GetCurrentOrderInfo/'+ tableId);
 }
 
 export function changeOrder(orderInfoDto) {

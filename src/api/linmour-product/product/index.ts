@@ -18,17 +18,12 @@ export function getProductDetails(id) {
     return request.get('/product/product/getProductDetails?productIds=0' + '&productIds=' + id);
 }
 
-export function addProduct(product) {
-    return request.post('/product/product/addProduct', {
+export function saveOrUpdateProduct(product) {
+    return request.post('/product/product/saveOrUpdateProduct', {
         product
     });
 }
 
-export function updateProduct(product) {
-    return request.post('/product/product/updateProduct', {
-        product
-    });
-}
 
 export function createProductSort(sort, shopId) {
     return request.post('/product/sort/createProductSort', {

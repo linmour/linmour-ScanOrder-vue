@@ -111,7 +111,7 @@
 <script setup>
 import {onMounted, reactive, ref} from "vue";
 import {createTable, getTable, update} from "../api/linmour-restaurant/table";
-import {changeOrder, checkout} from "../api/linmour-order";
+import {changeOrder, checkout,GetCurrentOrderInfo} from "../api/linmour-order";
 import {getLocalstorage, setLocalstorage} from "../utils/localStorage";
 import {error} from "../utils/tips";
 import {initWebSocket} from "../utils/webstock";
@@ -254,24 +254,28 @@ const getSocketData = (res) => {
 const PayAmount = ref()
 const TableId = ref()
 const orderDetail = (tableId) => {
-  TableId.value = tableId
-  const index = state.form.findIndex(i => i.id == tableId);
-  if (index !== -1) {
-    // 根据索引修改原数组中的值
-    state.form[index].dishes = 0;
-    update(state.form[index])
-  }
-  if (getLocalstorage("OrderList") !== '') {
-    const cacheOrderList = JSON.parse(getLocalstorage("OrderList"))
-    state.orderList.order = []
-
-    const existingItem = cacheOrderList.find(i => i.tableId == tableId)
-
-    if (existingItem) {
-      state.orderList.order = existingItem.list
-      PayAmount.value = existingItem.payAmount
-    }
-  }
+  GetCurrentOrderInfo(tableId).then(res =>{
+    state.orderList.order = res.data.productDetailDtos
+    console.log(res,"==================")
+  })
+  // TableId.value = tableId
+  // const index = state.form.findIndex(i => i.id == tableId);
+  // if (index !== -1) {
+  //   // 根据索引修改原数组中的值
+  //   state.form[index].dishes = 0;
+  //   update(state.form[index])
+  // }
+  // if (getLocalstorage("OrderList") !== '') {
+  //   const cacheOrderList = JSON.parse(getLocalstorage("OrderList"))
+  //   state.orderList.order = []
+  //
+  //   const existingItem = cacheOrderList.find(i => i.tableId == tableId)
+  //
+  //   if (existingItem) {
+  //     state.orderList.order = existingItem.list
+  //     PayAmount.value = existingItem.payAmount
+  //   }
+  // }
   dialogVisible.value = true
 }
 

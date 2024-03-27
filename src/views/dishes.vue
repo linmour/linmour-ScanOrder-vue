@@ -71,34 +71,33 @@
       <el-form-item prop="intro" label="简介">
         <el-input :readonly="true" v-model="state.form.intro" autocomplete="off"/>
       </el-form-item>
-      <el-form-item label="普通选项">
-        <el-tabs v-model="nonValueActiveName" @tab-click="nonValueHandleClick" type="card">
-          <div v-for="item in productDetails.nonValueList" :key="item.sort">
-            <el-tab-pane :label="item.sort" :name="item.sort">
-              <el-tag
-                  v-for="it in item.spec"
-                  :key="item.sort"
-                  class="mx-1"
-                  effect="dark"
-              >
-                {{ it }}
-              </el-tag>
-            </el-tab-pane>
-          </div>
-        </el-tabs>
-      </el-form-item>
+<!--      <el-form-item label="普通选项">-->
+<!--        <el-tabs v-model="nonValueActiveName" @tab-click="nonValueHandleClick" type="card">-->
+<!--          <div v-for="item in productDetails.nonValueList" :key="item.sort">-->
+<!--            <el-tab-pane :label="item.sort" :name="item.sort">-->
+<!--              <el-tag-->
+<!--                  v-for="it in item.spec"-->
+<!--                  :key="item.sort"-->
+<!--                  class="mx-1"-->
+<!--                  effect="dark"-->
+<!--              >-->
+<!--                {{ it }}-->
+<!--              </el-tag>-->
+<!--            </el-tab-pane>-->
+<!--          </div>-->
+<!--        </el-tabs>-->
+<!--      </el-form-item>-->
       <el-form-item label="价值选项">
         <el-tabs v-model="ValueActiveName" @tab-click="ValueHandleClick" type="card">
-          <div v-for="item in productDetails.valueList" :key="item.sort">
-            <el-tab-pane :label="item.sort" :name="item.sort">
-
+          <div v-for="item in productDetails.productSortAndOptions" :key="item.productSpecSort.id">
+            <el-tab-pane :label="item.productSpecSort.name" :name="item.productSpecSort.name">
               <el-tag
-                  v-for="(it,index) in item.spec"
-                  :key="item.sort"
+                  v-for="(it,index) in item.productSpecOptions"
+                  :key="index"
                   class="mx-1"
                   effect="dark"
               >
-                {{ it }} ￥ {{ item.price[index] }}
+                {{ it.name }} ￥ {{ it.price }}
               </el-tag>
             </el-tab-pane>
           </div>
@@ -190,10 +189,8 @@ const sortName = ref("")
 
 const inputBoxYes = async (value) => {
   sortName.value = value
-  console.log(sortName.value,"----",value)
   let sort = sortName.value
-  let shopId = 2
-  console.log(sort,"++++")
+  let shopId = getLocalstorage("ShopId").shopId
   await createProductSort(sort, shopId)
   await getSort()
   showInput.value = false;
@@ -289,22 +286,14 @@ const changeStatus = async (row) => {
 
 const drawerFormVisible = ref(false)
 
-const productDetails = reactive({
-  nonValueList: [],
-  valueList: [],
-  inventoryList: []
-
-});
+const productDetails = ref({})
 
 const detail = (row) => {
   state.form = row
   getProductDetails(row.id).then(res => {
     if (res.code === 200) {
-      res.data = res.data[0]
-      state.productId = res.data.id;
-      productDetails.nonValueList = res.data.nonValueList;
-      productDetails.valueList = res.data.valueList
-      productDetails.inventoryList = res.data.inventoryList
+      state.productId = row.id;
+      productDetails.value = res.data[0]
     }
   })
   drawerFormVisible.value = true

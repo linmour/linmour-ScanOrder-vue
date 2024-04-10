@@ -1,151 +1,235 @@
 <template>
   <div>
+    <div style="display: flex; gap: 50px;">
+      <el-card style="flex: 1 1 1580px;">
+        <template #header>
+          <div class="card-header">
+            <span>今 日 营 业 额</span>
+          </div>
+        </template>
+        {{ dataAnaly.orderSummaryDay.price }} 元
+      </el-card>
+      <el-card style="flex: 1 1 1580px;">
+        <template #header>
+          <div class="card-header">
+            <span>今 日 订 单 数</span>
+          </div>
+        </template>
+        {{ dataAnaly.orderSummaryDay.orderNum }} 个
+      </el-card>
+      <el-card style="flex: 1 1 1580px;">
+        <template #header>
+          <div class="card-header">
+            <span>今 日 销 售 菜 品 种 类 数</span>
+          </div>
+        </template>
+        {{ dataAnaly.orderSummaryDay.productNum }} 个
+      </el-card>
+      <!--      <el-card style="flex: 1 1 1580px;">-->
+      <!--        <template #header>-->
+      <!--          <div class="card-header">-->
+      <!--            <span>今 日 热 门 菜 品</span>-->
+      <!--          </div>-->
+      <!--        </template>-->
+      <!--        <div style="overflow: auto;height: 100px;">-->
+      <!--          <div class="left-column">-->
+      <!--            <div v-for="(value, key) in dataAnaly.productSummaryDay" :key="key">{{ key }}</div>-->
+      <!--          </div>-->
+      <!--          <div class="right-column">-->
+      <!--            <div v-for="(value, key) in dataAnaly.productSummaryDay" :key="value">{{ value }}</div>-->
+      <!--          </div>-->
+      <!--        </div>-->
+      <!--      </el-card>-->
+    </div>
     <div className="chart" ref="barContainer"></div>
     <div className="chart" ref="lineContainer"></div>
     <div className="chart" ref="myContainer"></div>
     <div className="chart" ref="aContainer"></div>
+
   </div>
 </template>
 
 <script setup>
 import {ref, onMounted} from 'vue';
 import * as echarts from 'echarts';
-import { initWebSocket } from '../utils/webstock';
+import {initWebSocket, websocketsend} from '../utils/webstock';
 
-const barContainer = ref(null);
-const lineContainer = ref(null);
-const myContainer = ref(null)
-const aContainer = ref(null)
+const barContainer = ref();
+const lineContainer = ref();
+const myContainer = ref()
+const aContainer = ref()
 
-onMounted(() => {
-  const barChart = echarts.init(barContainer.value);
-  const lineChart = echarts.init(lineContainer.value);
-  const myChart = echarts.init(myContainer.value);
-  const aChart = echarts.init(aContainer.value);
-
-  const revenueData = {
-    dates: ['2023-07-01', '2023-07-02', '2023-07-03', '2023-07-04', '2023-07-05', '2023-07-06'],
-    values: [100, 1500, 1200, 1800, 2000, 1600]
-  };
-  const constOption = {
-    title: {
-      text: '营业额柱状图',
-      left: 'center'
-    },
-    tooltip: {
-      trigger: 'axis',
-      formatter: '{b}: {c} 元'
-    },
-    xAxis: {
-      type: 'category',
-      data: revenueData.dates
-    },
-    yAxis: {
-      type: 'value'
-    },
-    series: [
-      {
-        name: '营业额',
-        type: 'bar',
-        data: revenueData.values
-      }
-    ]
-  };
-  const lineOption = {
-    title: {
-      text: '营业额折线图',
-      left: 'center'
-    },
-    tooltip: {
-      trigger: 'axis',
-      formatter: '{b}: {c} 元'
-    },
-    xAxis: {
-      type: 'category',
-      data: revenueData.dates
-    },
-    yAxis: {
-      type: 'value'
-    },
-    series: [
-      {
-        name: '营业额',
-        type: 'line',
-        data: revenueData.values
-      }
-    ]
-  };
-  const orderStatusData = [
-    {value: 25, name: '待处理'},
-    {value: 60, name: '进行中'},
-    {value: 15, name: '已完成'}
-  ];
-  const myOption = {
-    title: {
-      text: '订单状态占比',
-      left: 'center'
-    },
-    tooltip: {
-      trigger: 'item',
-      formatter: '{a} <br/>{b}: {c} ({d}%)'
-    },
-    legend: {
-      orient: 'vertical',
-      left: 'left',
-      data: ['待处理', '进行中', '已完成']
-    },
-    series: [
-      {
-        name: '订单状态',
-        type: 'pie',
-        radius: '50%',
-        center: ['50%', '60%'],
-        data: orderStatusData,
-        emphasis: {
-          itemStyle: {
-            shadowBlur: 10,
-            shadowOffsetX: 0,
-            shadowColor: 'rgba(0, 0, 0, 0.5)'
-          }
+const revenueData = ref({
+  dates: ['2023-07-01', '2023-07-02', '2023-07-03', '2023-07-04', '2023-07-05', '2023-07-06'],
+  values: [100, 1500, 1200, 1800, 2000, 1600]
+});
+const orderStatusData = ref([
+  {value: 0, name: '早餐'},
+  {value: 0, name: '午餐'},
+  {value: 0, name: '晚餐'},
+  {value: 0, name: '宵夜'}
+]);
+const data = ref([
+  {name: '菜品1', sales: 100},
+  {name: '菜品2', sales: 200},
+  {name: '菜品3', sales: 300},
+  {name: '菜品', sales: 150},
+  {name: '菜品5', sales: 250},
+]);
+const myOption = ref({
+  title: {
+    text: '用餐时间段',
+    left: 'center'
+  },
+  tooltip: {
+    trigger: 'item',
+    formatter: '{a} <br/>{b}: {c} ({d}%)'
+  },
+  legend: {
+    orient: 'vertical',
+    left: 'left',
+    data: ['早餐', '午餐', '晚餐', '宵夜']
+  },
+  series: [
+    {
+      name: '用餐时间段',
+      type: 'pie',
+      radius: '50%',
+      center: ['50%', '60%'],
+      data: orderStatusData.value,
+      emphasis: {
+        itemStyle: {
+          shadowBlur: 10,
+          shadowOffsetX: 0,
+          shadowColor: 'rgba(0, 0, 0, 0.5)'
         }
       }
-    ]
-  };
-  const data = [
-    {name: '菜品1', sales: 100},
-    {name: '菜品2', sales: 200},
-    {name: '菜品3', sales: 300},
-    {name: '菜品', sales: 150},
-    {name: '菜品5', sales: 250},
-  ];
-  const aOption = {
-    tooltip: {
-      trigger: 'axis',
-      axisPointer: {
-        type: 'shadow',
-      },
+    }
+  ]
+});
+const lineOption = ref({
+  title: {
+    text: '营业额折线图',
+    left: 'center'
+  },
+  tooltip: {
+    trigger: 'axis',
+    formatter: '{b}: {c} 元'
+  },
+  xAxis: {
+    type: 'category',
+    data: revenueData.value.dates
+  },
+  yAxis: {
+    type: 'value'
+  },
+  series: [
+    {
+      name: '营业额',
+      type: 'line',
+      data: revenueData.value.values
+    }
+  ]
+});
+const aOption = ref({
+  tooltip: {
+    trigger: 'axis',
+    axisPointer: {
+      type: 'shadow',
     },
-    xAxis: {
-      type: 'category',
-      data: data.map(item => item.name),
+  },
+  xAxis: {
+    type: 'category',
+    data: data.value.map(item => item.name),
+  },
+  yAxis: {
+    type: 'value',
+  },
+  series: [
+    {
+      type: 'bar',
+      data: data.value.map(item => item.sales),
     },
-    yAxis: {
-      type: 'value',
-    },
-    series: [
-      {
-        type: 'bar',
-        data: data.map(item => item.sales),
-      },
-    ],
-  };
-  barChart.setOption(constOption);
-  lineChart.setOption(lineOption);
-  myChart.setOption(myOption);
-  aChart.setOption(aOption);
-  initWebSocket();
+  ],
+});
+const constOption = ref({
+  title: {
+    text: '营业额柱状图',
+    left: 'center'
+  },
+  tooltip: {
+    trigger: 'axis',
+    formatter: '{b}: {c} 元'
+  },
+  xAxis: {
+    type: 'category',
+    data: revenueData.value.dates
+  },
+  yAxis: {
+    type: 'value'
+  },
+  series: [
+    {
+      name: '营业额',
+      type: 'bar',
+      data: revenueData.value.values
+    }
+  ]
 });
 
+
+const barChart = ref()
+const lineChart = ref()
+const myChart = ref()
+const aChart = ref()
+onMounted(() => {
+  barChart.value = echarts.init(barContainer.value);
+  lineChart.value = echarts.init(lineContainer.value);
+  myChart.value = echarts.init(myContainer.value);
+  aChart.value = echarts.init(aContainer.value);
+  initWebSocket();
+  setTimeout(() => {
+    websocketsend(`{"dataAnaly": ""}`);
+  }, 100); // 延迟 100 毫秒
+  window.addEventListener('onmessageWS', getSocketData)
+  barChart.value.setOption(constOption.value);
+  lineChart.value.setOption(lineOption.value);
+  myChart.value.setOption(myOption.value);
+  aChart.value.setOption(aOption.value);
+
+});
+
+const dataAnaly = ref({
+  orderSummaryDay: {
+    orderNum: 0,
+
+    price: 0,
+    productNum: 0,
+  },
+  productSummaryDay: {},
+  timePeriodMap: []
+});
+
+const getSocketData = (res) => {
+  res = JSON.parse(res.detail.data)
+  console.log(res, "-------------------------------888------------------")
+
+  //res和dataAnaly结构不一样，直接赋值感知不到数据更新
+  dataAnaly.value.orderSummaryDay.price = res.orderSummaryDay.price;
+  dataAnaly.value.orderSummaryDay.orderNum = res.orderSummaryDay.orderNum;
+  dataAnaly.value.orderSummaryDay.productNum = res.orderSummaryDay.productNum;
+  dataAnaly.value.productSummaryDay = res.productSummaryDay;
+  dataAnaly.value.timePeriodMap = res.timePeriodMap
+  for (let i = 0; i < dataAnaly.value.timePeriodMap.length; i++) {
+    if (dataAnaly.value.timePeriodMap[i].orderNum == undefined)
+      orderStatusData.value[i].value = 0
+    else
+      orderStatusData.value[i].value = dataAnaly.value.timePeriodMap[i].orderNum;
+  }
+  console.log(orderStatusData.value)
+  myChart.value.setOption(myOption.value);
+
+}
 
 </script>
 
@@ -154,5 +238,15 @@ onMounted(() => {
   width: 50%;
   height: 300px;
   float: left;
+}
+
+.left-column {
+  float: left;
+  width: 50%;
+}
+
+.right-column {
+  float: right;
+  width: 50%;
 }
 </style>

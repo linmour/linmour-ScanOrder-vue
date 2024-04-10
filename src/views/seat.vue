@@ -9,7 +9,7 @@
           <div class="card-header">
             <span>{{ item.name }}</span>
             <el-tag :type="item.status === 1 ? 'danger' : (item.status === 0 ? 'success' : 'warning')">
-              {{ item.status === 1 ? '有人' : (item.status === 0 ? '空闲' : '已预订') }}
+              {{ item.status ===   1 ? '有人' : (item.status === 0 ? '空闲' : '已预订') }}
             </el-tag>
           </div>
         </template>
@@ -46,12 +46,12 @@
         </div>
       </el-card>
     </el-col>
-
   </el-row>
-  <el-dialog v-model="dialogVisible" title="餐桌订单" width="2000" :before-close="handleClose" :show-close="false"
-             draggable>
+
+
+  <el-dialog v-model="dialogVisible" title="餐桌订单" width="2000" :before-close="handleClose" :show-close="false" draggable>
     <div style="display: flex; flex-wrap: wrap; gap: 10px ; width: 100%">
-      <el-card v-for="(item,index) in state.orderList.order" class="box-card" ref="cardRefs">
+      <el-card v-for="(item,index) in state.orderList.order.orderItems" class="box-card" ref="cardRefs">
         <!--        v-if="state.orderList.orderInfoDtos.orderStatus !== 1"-->
         <div>
           <el-row :gutter="20">
@@ -62,11 +62,12 @@
                   confirm-button-text="确认"
                   icon-color="#626AEF"
                   title="你确定改变上菜状态？"
-                  @confirm="confirmEvent(item,index)"
-                  @cancel="cancel(item)"
+                  @confirm="confirmEvent(index)"
+                  @cancel="cancel()"
               >
                 <template #reference>
-                  <el-checkbox v-model="item.f" @change="change($event,item)" label="菜品是否完成" size="large"></el-checkbox>
+                  <el-checkbox v-model="item.status" @change="change($event,item)" label="菜品是否完成"
+                               size="large"></el-checkbox>
                 </template>
               </el-popconfirm>
 
@@ -88,8 +89,21 @@
           </el-row>
         </div>
       </el-card>
+
     </div>
-    <div style="margin-left: 95%;font-size: 20px">总价:{{ PayAmount }}</div>
+    <div v-if="state.orderList.order.orderInfo != undefined"
+         style="float: right; text-align: left;font-size: 18px;margin-top: -65px">
+      <div style=" margin-right: 12px;">
+        订单号:{{ state.orderList.order.orderInfo.id }}
+      </div>
+      <div style=" margin-right: 12px;">
+        总价:{{ state.orderList.order.orderInfo.payAmount }}
+      </div>
+      <div style=" margin-right: 12px;">
+        备注:{{ state.orderList.order.orderInfo.remark }}
+      </div>
+    </div>
+
 
   </el-dialog>
   <el-dialog v-model="addTableVisible" title="Warning" width="30%" center>
@@ -111,7 +125,7 @@
 <script setup>
 import {onMounted, reactive, ref} from "vue";
 import {createTable, getTable, update} from "../api/linmour-restaurant/table";
-import {changeOrder, checkout,GetCurrentOrderInfo} from "../api/linmour-order";
+import {updateOrderItemStatus, checkout, GetCurrentOrderInfo} from "../api/linmour-order";
 import {getLocalstorage, setLocalstorage} from "../utils/localStorage";
 import {error} from "../utils/tips";
 import {initWebSocket} from "../utils/webstock";
@@ -147,7 +161,7 @@ const createTables = () => {
 
 
 const change = (e, item) => {
-  item.f = !e
+  item.status = !e
 }
 const addTable = () => {
   addTableVisible.value = true
@@ -155,55 +169,43 @@ const addTable = () => {
 
 
 const cancel = () => {
-  orderDetail(TableId.value)
+  // orderDetail(state.orderList.order.orderInfo.tableId)
 }
 const confirmOverOrder = (tableId) => {
-  const a = JSON.parse(getLocalstorage('OrderList'))
-  const it = a.find(i => i.tableId == TableId.value)
-  if (it) {
-    if (it.list.every(obj => obj.f === true)) {
-      checkout(tableId, 4).then(res => {
-        const dex = state.form.findIndex(i => i.id == tableId);
-        if (dex !== -1) {
-          // 根据索引修改原数组中的值
-          state.form[dex].dishes = 0;
-          state.form[dex].serving = 0;
-          update(state.form[dex])
-        }
-        const a = JSON.parse(getLocalstorage('OrderList'))
-        const index = a.findIndex(i => i.tableId == tableId.toString());
-        if (index !== -1) {
-          a.splice(index, 1);
-          PayAmount.value = 0
-          state.cacheOrderList = []
-          setLocalstorage("OrderList", a)
-        }
-
-      })
-    } else {
-      error("还有未完成的菜品")
-    }
-  }
+  checkout(tableId, 4)
+  // const a = JSON.parse(getLocalstorage('OrderList'))
+  // const it = a.find(i => i.tableId == TableId.value)
+  // if (it) {
+  //   if (it.list.every(obj => obj.f === true)) {
+  //     checkout(tableId, 4).then(res => {
+  //       const dex = state.form.findIndex(i => i.id == tableId);
+  //       if (dex !== -1) {
+  //         // 根据索引修改原数组中的值
+  //         state.form[dex].dishes = 0;
+  //         state.form[dex].serving = 0;
+  //         update(state.form[dex])
+  //       }
+  //       const a = JSON.parse(getLocalstorage('OrderList'))
+  //       const index = a.findIndex(i => i.tableId == tableId.toString());
+  //       if (index !== -1) {
+  //         a.splice(index, 1);
+  //         state.cacheOrderList = []
+  //         setLocalstorage("OrderList", a)
+  //       }
+  //
+  //     })
+  //   } else {
+  //     error("还有未完成的菜品")
+  //   }
+  // }
 
 }
 
 
-const confirmEvent = (item, index) => {
-  const a = JSON.parse(getLocalstorage('OrderList'))
-  const it = a.find(i => i.tableId == TableId.value)
-  if (it) {
-    const m = it.list[index]
-    m.f = !m.f
-    if (it.list.every(obj => obj.f === true)) {
-      let index = state.form.findIndex(i => i.id == it.tableId);
-      if (index !== -1)
-        state.form[index].serving = 1;
-      update(state.form[index])
-    }
-  }
+const  confirmEvent =async (index) => {
+  await updateOrderItemStatus(state.orderList.order.orderInfo.tableId, index)
+  await   orderDetail(state.orderList.order.orderInfo.tableId)
 
-  setLocalstorage("OrderList", a)
-  orderDetail(TableId.value)
 }
 
 
@@ -234,10 +236,8 @@ const getSocketData = (res) => {
     } else {
       state.cacheOrderList = JSON.parse(getLocalstorage('OrderList'))
       const originalArray = state.cacheOrderList.find(i => i.tableId === res.data.tableId)
-
       if (originalArray) {
         originalArray.payAmount = res.data.payAmount
-
         // 遍历要插入的新数组
         res.data.list.forEach(newArrayItem => {
           newArrayItem.f = false
@@ -251,12 +251,15 @@ const getSocketData = (res) => {
     setLocalstorage("OrderList", state.cacheOrderList)
   }
 }
-const PayAmount = ref()
-const TableId = ref()
 const orderDetail = (tableId) => {
-  GetCurrentOrderInfo(tableId).then(res =>{
-    state.orderList.order = res.data.productDetailDtos
-    console.log(res,"==================")
+  GetCurrentOrderInfo(tableId).then(res => {
+    state.orderList.order = res.data
+    state.orderList.order.orderItems.forEach(m => {
+      if (m.status == 1)
+        m.status = true
+      else
+        m.status = false
+    })
   })
   // TableId.value = tableId
   // const index = state.form.findIndex(i => i.id == tableId);
@@ -286,7 +289,6 @@ const getTables = () => {
     }
   })
 }
-const shopId = JSON.parse(getLocalstorage("ShopId")).shopId
 onMounted(async () => {
   initWebSocket();
   window.addEventListener('onmessageWS', getSocketData)

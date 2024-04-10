@@ -15,3 +15,6 @@ export function changeOrder(orderInfoDto) {
 export const checkout = (tableId,payType,openid) => request({url: '/app/order/order/checkout'  ,method: 'post',
     data: {tableId,payType,openid}
 })
+export const updateOrderItemStatus = (tableId,index) => request({
+    url: '/app/order/order/updateOrderItemStatus/'+tableId +"/" +index, method: 'post',
+})

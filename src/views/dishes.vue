@@ -16,7 +16,6 @@
       <el-table-column prop="id" label="序号" width="180"/>
       <el-table-column prop="name" label="名字" width="180"/>
       <el-table-column prop="intro" label="简介"/>
-      <el-table-column prop="intro" label="简介"/>
       <el-table-column prop="picture" label="图片">
         <template #default="{ row }">
           <el-image
@@ -58,9 +57,10 @@
       </el-table-column>
     </el-table>
   </div>
-      <div class="padding-left-l padding-right-l">
-        <input-box :caption="caption" :show="showInput" :value="inputValue" @close="showInput=false" @confirm="inputBoxYes" @cancel="showInput=false"/>
-      </div>
+  <div class="padding-left-l padding-right-l">
+    <input-box :caption="caption" :show="showInput" :value="inputValue" @close="showInput=false" @confirm="inputBoxYes"
+               @cancel="showInput=false"/>
+  </div>
 
 
   <el-drawer v-model="drawerFormVisible" title="I am the title" :with-header="false">
@@ -68,26 +68,26 @@
       <el-form-item prop="name" label="名字">
         <el-input :readonly="true" v-model="state.form.name" autocomplete="off"/>
       </el-form-item>
-      <el-form-item prop="intro" label="简介">
+      <el-form-item prop="intro" label="简介1">
         <el-input :readonly="true" v-model="state.form.intro" autocomplete="off"/>
       </el-form-item>
-<!--      <el-form-item label="普通选项">-->
-<!--        <el-tabs v-model="nonValueActiveName" @tab-click="nonValueHandleClick" type="card">-->
-<!--          <div v-for="item in productDetails.nonValueList" :key="item.sort">-->
-<!--            <el-tab-pane :label="item.sort" :name="item.sort">-->
-<!--              <el-tag-->
-<!--                  v-for="it in item.spec"-->
-<!--                  :key="item.sort"-->
-<!--                  class="mx-1"-->
-<!--                  effect="dark"-->
-<!--              >-->
-<!--                {{ it }}-->
-<!--              </el-tag>-->
-<!--            </el-tab-pane>-->
-<!--          </div>-->
-<!--        </el-tabs>-->
-<!--      </el-form-item>-->
-      <el-form-item label="价值选项">
+      <!--      <el-form-item label="普通选项">-->
+      <!--        <el-tabs v-model="nonValueActiveName" @tab-click="nonValueHandleClick" type="card">-->
+      <!--          <div v-for="item in productDetails.nonValueList" :key="item.sort">-->
+      <!--            <el-tab-pane :label="item.sort" :name="item.sort">-->
+      <!--              <el-tag-->
+      <!--                  v-for="it in item.spec"-->
+      <!--                  :key="item.sort"-->
+      <!--                  class="mx-1"-->
+      <!--                  effect="dark"-->
+      <!--              >-->
+      <!--                {{ it }}-->
+      <!--              </el-tag>-->
+      <!--            </el-tab-pane>-->
+      <!--          </div>-->
+      <!--        </el-tabs>-->
+      <!--      </el-form-item>-->
+      <el-form-item label="规格选项" v-if="productDetails.productSortAndOptions != undefined && productDetails.productSortAndOptions.length >0">
         <el-tabs v-model="ValueActiveName" @tab-click="ValueHandleClick" type="card">
           <div v-for="item in productDetails.productSortAndOptions" :key="item.productSpecSort.id">
             <el-tab-pane :label="item.productSpecSort.name" :name="item.productSpecSort.name">
@@ -97,13 +97,17 @@
                   class="mx-1"
                   effect="dark"
               >
-                {{ it.name }} ￥ {{ it.price }}
+                {{ it.name }}
+                <div v-if="it.price != 0.00">
+                  ￥{{ it.price }}
+
+                </div>
               </el-tag>
             </el-tab-pane>
           </div>
         </el-tabs>
       </el-form-item>
-      <el-form-item label="所需材料">
+      <el-form-item label="所需材料" v-if="productDetails.inventoryList != undefined">
         <el-tag
             v-for="item in productDetails.inventoryList"
             :key="item.name"
@@ -130,27 +134,27 @@
   />
 
 
-  <el-dialog v-model="dialogFormVisible" title="信息" width="40%">
-    <el-form :model="state.form" label-width="80px" style="padding: 0 20px" status-icon>
-      <el-form-item prop="name" label="名字">
-        <el-input v-model="state.form.name" autocomplete="off"/>
-      </el-form-item>
-      <el-form-item prop="intro" label="简介">
-        <el-input v-model="state.form.intro" autocomplete="off"/>
-      </el-form-item>
-      <el-form-item prop="status" label="状态">
-        <el-select v-model="state.form.status" style="width: 100%">
-          <el-option :key="1" label="正常" :value="1"/>
-          <el-option :key="0" label="停用" :value="0"/>
-        </el-select>
-      </el-form-item>
-    </el-form>
-    <template #footer>
-      <span class="dialog-footer">
-        <el-button @click="dialogFormVisible = false">取消</el-button>
-      </span>
-    </template>
-  </el-dialog>
+  <!--  <el-dialog v-model="dialogFormVisible" title="信息" width="40%">-->
+  <!--    <el-form :model="state.form" label-width="80px" style="padding: 0 20px" status-icon>-->
+  <!--      <el-form-item prop="name" label="名字">-->
+  <!--        <el-input v-model="state.form.name" autocomplete="off"/>-->
+  <!--      </el-form-item>-->
+  <!--      <el-form-item prop="intro" label="简介2">-->
+  <!--        <el-input v-model="state.form.intro" autocomplete="off"/>-->
+  <!--      </el-form-item>-->
+  <!--      <el-form-item prop="status" label="状态">-->
+  <!--        <el-select v-model="state.form.status" style="width: 100%">-->
+  <!--          <el-option :key="1" label="正常" :value="1"/>-->
+  <!--          <el-option :key="0" label="停用" :value="0"/>-->
+  <!--        </el-select>-->
+  <!--      </el-form-item>-->
+  <!--    </el-form>-->
+  <!--    <template #footer>-->
+  <!--      <span class="dialog-footer">-->
+  <!--        <el-button @click="dialogFormVisible = false">取消</el-button>-->
+  <!--      </span>-->
+  <!--    </template>-->
+  <!--  </el-dialog>-->
 </template>
 
 
@@ -169,7 +173,6 @@ import {error} from "@/utils/tips";
 import router from "@/router";
 import {getLocalstorage} from "@/utils/localStorage";
 import InputBox from "../component/inputBox.vue"
-
 
 
 const inputValue = ref('');
@@ -207,7 +210,6 @@ const addProduct = () => {
 
 const activeName = ref(1)
 const ValueActiveName = ref('')
-const nonValueActiveName = ref('')
 const handleClick = (tab: TabsPaneContext, event: Event) => {
   state.queryParams.sortId = tab.props.name
   getList()
@@ -216,9 +218,7 @@ const handleClick = (tab: TabsPaneContext, event: Event) => {
 const ValueHandleClick = (tab: TabsPaneContext, event: Event) => {
   ValueActiveName.value = tab.props.name
 }
-const nonValueHandleClick = (tab: TabsPaneContext, event: Event) => {
-  nonValueActiveName.value = tab.props.name
-}
+
 const shopId = ref()
 const total = ref(0)
 const getList = async () => {
@@ -294,6 +294,7 @@ const detail = (row) => {
     if (res.code === 200) {
       state.productId = row.id;
       productDetails.value = res.data[0]
+      ValueActiveName.value = productDetails.value.productSortAndOptions[0].productSpecSort.name
     }
   })
   drawerFormVisible.value = true

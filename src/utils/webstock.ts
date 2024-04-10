@@ -1,4 +1,4 @@
-import { ref } from 'vue';
+import {ref} from 'vue';
 import {getLocalstorage} from "../utils/localStorage";
 
 export const socket = ref(null);
@@ -17,7 +17,7 @@ export const initWebSocket = () => {
     websocket.value.onerror = websocketonerror;
     websocket.value.onmessage = setOnmessageMessage;
     websocket.value.onclose = websocketclose;
-    console.log(websocket.value,"=======")
+
 
 }
 
@@ -27,7 +27,7 @@ export const start = () => {
     clearTimeout(serverTimeoutObj.value);
     timeoutObj.value = setTimeout(() => {
         if (websocket.value && websocket.value.readyState === 1) {
-            let actions = { "test": "12345" };
+            let actions = {"test": "12345"};
             websocket.value.send(JSON.stringify(actions));
         } else {
             reconnect();
@@ -85,6 +85,7 @@ export const websocketclose = (e) => {
 
 export const websocketsend = (messsage) => {
     websocket.value.send(messsage);
+
 }
 
 export const closeWebSocket = () => {

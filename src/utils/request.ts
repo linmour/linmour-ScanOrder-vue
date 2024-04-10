@@ -1,8 +1,6 @@
 import axios from 'axios'
-import {success, error} from '@/utils/tips'
+import {error, success} from '@/utils/tips'
 import {getLocalstorage, removeLocalstorage} from "@/utils/localStorage";
-import router from "@/router";
-import {Logger} from "sass";
 
 // 配置请求的跟路径
 axios.defaults.baseURL = 'api'

@@ -7,7 +7,7 @@
       class="!w-240px"
   >
     <el-option
-        v-for="dict in dictList"
+        v-for="dict in getDictOptions(props.dictType)"
         :key="dict.value"
         :label="dict.label"
         :value="dict.value"
@@ -18,7 +18,6 @@
 <script setup>
 import {getDictOptions} from "../utils/dict"
 import {onMounted, ref} from "vue";
-const dictList = getDictOptions(props.dictType)
 
 
 const props = defineProps({
@@ -40,7 +39,7 @@ const updateParma = (value) => {
 }
 const a = ref(props.param)
 onMounted(() => {
-  dictList.forEach(m =>{
+  getDictOptions(props.dictType).forEach(m =>{
     if (m.value == props.param){
       a.value = m.label
     }

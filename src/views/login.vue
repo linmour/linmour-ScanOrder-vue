@@ -36,18 +36,6 @@
           <el-button :text="true" @click="register">立即注册</el-button>
           <span>|</span>
           <el-button :text="true">忘记密码</el-button>
-          <span>|</span>
-          <el-button :text="true">
-            <el-switch
-                v-model="userType"
-                inline-prompt
-                :active-value="1"
-                :inactive-value="0"
-                active-text="商户"
-                inactive-text="管理者"
-                style="--el-switch-on-color: #13ce66; --el-switch-off-color: #6366f1"
-            />
-          </el-button>
         </el-form-item>
         <el-form-item>
           <el-button round color="#626aef" class="w-[250px]" type="primary" @click="onSubmit" :loading="loading">登 录
@@ -96,98 +84,6 @@ const userType = ref('2')
 const register = () => {
   router.push('/register')
 }
-// const socket = ref(null);
-// const timeout = ref(10 * 1000);
-// const timeoutObj = ref(null);
-// const serverTimeoutObj = ref(null);
-// const lockReconnect = ref(false);
-// const websocket = ref(null)
-// const timeoutnum = ref(null)
-//
-// // 初始化 websocket
-// const initWebSocket = () => {
-//   let wsUrl = 'ws://127.0.0.1:12800/websocket/order/' + '1';
-//   let a = JSON.parse(getLocalstorage("ShopId")).shopId
-//   websocket.value = new WebSocket(wsUrl, [a]);
-//   websocket.value.onopen = websocketonopen;
-//   websocket.value.onerror = websocketonerror;
-//   websocket.value.onmessage = setOnmessageMessage;
-//   websocket.value.onclose = websocketclose;
-// }
-//
-// // 页面加载时执行初始化 websocket
-// // onMounted(() => {
-// //   initWebSocket();
-// // });
-//
-// const start = () => {
-//   console.log('start');
-//   clearTimeout(timeoutObj.value);
-//   clearTimeout(serverTimeoutObj.value);
-//   timeoutObj.value = setTimeout(() => {
-//     if (websocket.value && websocket.value.readyState === 1) {
-//       let actions = {"test": "12345"};
-//       websocket.send(JSON.stringify(actions));
-//     } else {
-//       reconnect();
-//     }
-//     serverTimeoutObj.value = setTimeout(() => {
-//       websocket.value.close();
-//     }, timeout.value);
-//   }, timeout.value);
-// }
-//
-// const reset = () => {
-//   clearTimeout(timeoutObj.value);
-//   clearTimeout(serverTimeoutObj.value);
-//   start();
-// }
-//
-// const reconnect = () => {
-//   if (lockReconnect.value) return;
-//   lockReconnect.value = true;
-//   timeoutnum.value && clearTimeout(timeoutnum.value);
-//   timeoutnum.value = setTimeout(() => {
-//     initWebSocket();
-//     lockReconnect.value = false;
-//   }, 5000);
-// }
-//
-// const setOnmessageMessage = async (event) => {
-//   reset();
-//   window.dispatchEvent(new CustomEvent('onmessageWS', {
-//     detail: {
-//       data: event.data
-//     }
-//   }));
-// }
-//
-// const websocketonopen = () => {
-//   start();
-//   console.log("WebSocket连接成功!!!" + new Date() + "----" + websocket.value.readyState);
-//   clearInterval(this.otimer);
-// }
-//
-// const websocketonerror = (e) => {
-//   console.log("WebSocket连接发生错误");
-//   console.log(e);
-// }
-//
-// const websocketclose = (e) => {
-//   websocket.value.close();
-//   clearTimeout(timeoutObj.value);
-//   clearTimeout(serverTimeoutObj.value);
-//   console.log("WebSocket连接关闭");
-//   console.log(e);
-// }
-//
-// const websocketsend = (messsage) => {
-//   websocket.value.send(messsage);
-// }
-//
-// const closeWebSocket = () => {
-//   websocket.value.close();
-// }
 
 const onSubmit = async () => {
   loading.value = true
@@ -205,16 +101,15 @@ const onSubmit = async () => {
 
     const loginRes = await login(form.phone, form.password);
 
-    if (loginRes.code === 200) {
-      setLocalstorage("Token", loginRes.data.token);
-      setLocalstorage("UserInfo", loginRes.data.userInfo);
-      const dictRes = await getDictList();
-      if (dictRes.code === 200) {
-        setLocalstorage("DictList", dictRes.data);
-      }
-      // initWebSocket();
-      router.push("/");
-    }
+    setLocalstorage("Token", loginRes.token);
+    setLocalstorage("UserInfo", loginRes.userInfo);
+    const dictRes = await getDictList();
+    setLocalstorage("DictList", dictRes);
+    if (loginRes.userInfo.type == 1)
+      router.push("/admin/shop");
+    else
+      router.push("/user/home")
+
   } catch (error) {
     // 处理错误
   } finally {
@@ -260,6 +155,7 @@ const onSubmit = async () => {
   width: 500px;
   display: flex;
   align-items: center;
+  margin-left: 40px;
 }
 
 

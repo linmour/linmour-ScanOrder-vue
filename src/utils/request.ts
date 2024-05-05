@@ -1,6 +1,7 @@
 import axios from 'axios'
 import {error, success} from '@/utils/tips'
 import {getLocalstorage, removeLocalstorage} from "@/utils/localStorage";
+import router from "../router";
 
 // 配置请求的跟路径
 axios.defaults.baseURL = 'api'
@@ -15,7 +16,7 @@ axios.interceptors.request.use(function (config) {
     // 往header头自动添加token
     const token = getLocalstorage("Token")
     if (getLocalstorage("ShopId") !== '') {
-        const shopId = JSON.parse(getLocalstorage("ShopId")).shopId
+        const shopId = getLocalstorage("ShopId")
         config.headers["ShopId"] = shopId
     }
     if (token) {
@@ -28,32 +29,23 @@ axios.interceptors.request.use(function (config) {
     // 对请求错误做些什么
     return Promise.reject(error);
 });
-
-// 添加响应拦截器
-axios.interceptors.response.use(function (response) {
-//TODO  删除多余code验证
-    if (response.data.code === 200) {
-        success(response.data.msg)
+axios.interceptors.response.use(response => {
+    let data = response.data
+    console.log(data.code,"----")
+    if (data.code === 200) {
+        success(data.msg)
     } else {
-        error(response.data.msg)
+        error(data.msg)
     }
-    if (response.data.code === 401) {
+    if (data.code === 401) {
         removeLocalstorage("Token")
-        // router.push("/login")
+        router.push("/login")
     }
-    if (response.data.code === 403) {
-      error(response.data.msg)
-        // router.push("/login")
+    if (data.code === 403) {
+        error(data.msg)
+        router.push("/login")
     }
-
-    // 这个就直接是对返回的数据进行操作了
-    return response.data;
-}, function (err) {
-
-    // 对响应错误做点什么
-
-    error("请求错误")
-
-    return Promise.reject(err);
+    return data.data
 })
+
 export default axios

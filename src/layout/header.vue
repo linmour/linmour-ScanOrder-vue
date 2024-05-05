@@ -8,9 +8,9 @@
       <div style="flex: 1; display: flex">
         <div style="flex: 1">
 
-          <el-icon @click="changIcon" size="60px">
-            <component :is="fold.isCollapse?'Fold':'Expand'"></component>
-          </el-icon>
+<!--          <el-icon @click="changIcon" size="60px">-->
+<!--            <component :is="fold.isCollapse?'Fold':'Expand'"></component>-->
+<!--          </el-icon>-->
         </div>
         <div style="width: 100px">
           <div style="text-align: right">{{ realName }}</div>
@@ -36,7 +36,6 @@
 import {logout} from "../api/linmour-system/merchant";
 import {getLocalstorage, removeLocalstorage} from "../utils/localStorage";
 import {useRouter} from "vue-router/dist/vue-router";
-import { useIsCollapseStore } from '../stores'
 
 const userInfo = (JSON.parse(getLocalstorage('UserInfo')));
 const avatar = userInfo.avatar
@@ -44,20 +43,14 @@ const router = useRouter()
 const realName = userInfo.realName
 const Logout =() =>{
   logout(userInfo.id).then(res =>{
-    if (res.code === 200){
       removeLocalstorage("Token")
       removeLocalstorage("UserInfo")
+      removeLocalstorage("Menus")
       router.push('/login')
-    }
-
   }).catch(err =>{
 
   })
 }
 
-const fold = useIsCollapseStore()
-const changIcon =()=>{
-  fold.change()
 
-}
 </script>

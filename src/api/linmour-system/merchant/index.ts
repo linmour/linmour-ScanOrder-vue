@@ -17,13 +17,21 @@ export function userInfo() {
     return request.post('/system/merchant/userInfo');
 }
 
-export function register(){
-
+export function saveOrUpdateMerchant(param){
+    return request.post('/system/merchant/saveOrUpdateMerchant',param);
 }
 
 
 export function update(userInfo) {
-    return request.post('/system/merchant/update',{
-        userInfo
-    });
+    return request.post('/system/merchant/update', userInfo
+    );
+}
+
+export function getMerchant(param) {
+    return request.get('/system/merchant/getMerchantPage', param);
+}
+
+
+export function save0rUpdateMerchant(param){
+    return request.post('/system/merchant/save0rUpdateMerchant',param);
 }

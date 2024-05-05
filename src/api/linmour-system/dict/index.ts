@@ -3,3 +3,5 @@ import request from "@/utils/request";
 export function getDictList() {
     return request.get('/system/dict/getDictList');
 }
+
+

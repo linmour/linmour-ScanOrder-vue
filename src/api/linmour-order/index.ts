@@ -8,6 +8,16 @@ export function GetCurrentOrderInfo(tableId) {
     return request.get('/order/order/GetCurrentOrderInfo/'+ tableId);
 }
 
+
+
+export function GetOrderByShopId() {
+    return request.get('/order/order/GetOrderByShopId');
+}
+
+export function getOrderPayAmount(param) {
+    return request.get('/order/order/getOrderPayAmount',param);
+}
+
 export function changeOrder(orderInfoDto) {
     return request.post('/order/order/changeOrder', {orderInfoDto});
 }

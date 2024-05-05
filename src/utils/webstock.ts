@@ -11,7 +11,7 @@ export const timeoutnum = ref(null)
 
 
 export const initWebSocket = () => {
-    let wsUrl = 'ws://127.0.0.1:12800/websocket/order/' + JSON.parse(getLocalstorage("ShopId")).shopId;
+    let wsUrl = 'ws://127.0.0.1:12800/websocket/order/' + getLocalstorage("ShopId");
     websocket.value = new WebSocket(wsUrl);
     websocket.value.onopen = websocketonopen;
     websocket.value.onerror = websocketonerror;
